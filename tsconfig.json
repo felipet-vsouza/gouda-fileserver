@@ -1,9 +1,15 @@
 {
     "files": [
-        "src/main.ts"
+        "src/core/server.ts",
+        "src/core/server.core.ts",
+        "src/core/utils.ts",
+        "src/core/config/config.api.ts",
+        "src/core/config/config.json.ts"
     ],
     "compilerOptions": {
         "noImplicitAny": true,
-        "target": "es5"
-    }
+        "target": "es5",
+        "outDir": "dist"
+    },
+    "typeRoots": ["./node_modules/@types"]
 }
