@@ -1,0 +1,24 @@
+{
+  "name": "gouda-fileserver",
+  "version": "1.0.0",
+  "description": "Simple file server developed using Node.js and TypeScript",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/felipet-vsouza/home-fileserver.git"
+  },
+  "author": "Felipe Thomas Vargas de Souza",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/felipet-vsouza/home-fileserver/issues"
+  },
+  "homepage": "https://github.com/felipet-vsouza/home-fileserver#readme",
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-typescript": "^3.1.4",
+    "typescript": "^2.1.6"
+  }
+}
