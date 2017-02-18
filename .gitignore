@@ -38,3 +38,6 @@ jspm_packages
 
 # Distribution directory
 dist/
+
+# Visual Studio Code configurations
+.vscode/
