@@ -1,6 +1,7 @@
 {
     "files": [
         "src/core/server.ts",
+        "src/core/server.api.ts",
         "src/core/server.core.ts",
         "src/core/utils.ts",
         "src/core/config/config.api.ts",

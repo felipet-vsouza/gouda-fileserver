@@ -1,4 +1,5 @@
 import * as fs from 'fs';
+import * as API from './server.api';
 import * as http from 'http';
 
 export module Utils {
@@ -23,6 +24,10 @@ export module Utils {
                 .pipe(response);
         }
 
+        export function prepareJSONResponse(response: http.ServerResponse) {
+            response.writeHead(200, { 'Content-Type': `application/JSON` });
+        }
+
     }
 
     export namespace FileSystem {
@@ -42,9 +47,22 @@ export module Utils {
             });
         }
 
+        export function listFiles(path: string, directory: string) {
+            let absolutePath = buildAbsolutePath(path, directory);
+            return new Promise((resolve: Function, reject: Function) => {
+                fs.readdir(absolutePath, (error: NodeJS.ErrnoException, files: string[]) => {
+                    if (error) {
+                        reject(error);
+                    } else {
+                        resolve(files);
+                    }
+                });
+            });
+        }
+
     }
 
-    let buildAbsolutePath = function(path: string, filename: string): string {
-        return path.concat((require('path').sep)).concat(filename);
+    let buildAbsolutePath = function(path: string, dir: string): string {
+        return path.concat((require('path').sep)).concat(dir);
     }
 }

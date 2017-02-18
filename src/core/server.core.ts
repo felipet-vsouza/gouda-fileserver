@@ -1,5 +1,6 @@
 import * as url from 'url';
 import * as http from 'http';
+import * as API from './server.api';
 import * as configAPI from './config/config.api';
 import * as _ from './utils';
 
@@ -10,10 +11,12 @@ export module ServerCore {
     export function createServer(): http.Server {
         return http.createServer((request: http.IncomingMessage, response: http.ServerResponse) => {
             let parsedReq: url.Url = url.parse(request.url, true);
-            switch (parsedReq.pathname) {
+            switch (parsedReq.pathname.toLowerCase()) {
                 case '/file':
-                    console.log(parsedReq);
                     serveFile(parsedReq, response);
+                    break;
+                case '/list':
+                    listDirectory(parsedReq, response);
                     break;
                 default:
                     _.Utils.Server.prepareDefaultErrorResponse(response);
@@ -23,7 +26,7 @@ export module ServerCore {
         });
     }
 
-    export function serveFile(parsedReq: url.Url, response: http.ServerResponse) {
+    function serveFile(parsedReq: url.Url, response: http.ServerResponse) {
         if (!parsedReq || !parsedReq.query || !parsedReq.query.filename) {
             let message = 'You must specify a file to download. Try "/file?filename=jrnl.txt"';
             _.Utils.Server.prepareDefaultErrorResponse(response, message);
@@ -43,4 +46,28 @@ export module ServerCore {
             });
     }
 
+    function listDirectory(parsedReq: url.Url, response: http.ServerResponse) {
+        if (!parsedReq || !parsedReq.query) {
+            let message = 'There was an error processing this request.';
+            _.Utils.Server.prepareDefaultErrorResponse(response, message);
+            response.end();
+            return;
+        }
+        let directory = parsedReq.query.directory ? parsedReq.query.directory : '';
+        _.Utils.FileSystem.listFiles(config.server.hostPath, directory)
+            .then((files: string[]) => {
+                let responseBody: API.ServerResponse.DirectoryListResponse = {
+                    files: files
+                };
+                _.Utils.Server.prepareJSONResponse(response);
+                response.write(JSON.stringify(responseBody));
+                response.end();
+            })
+            .catch((error: NodeJS.ErrnoException) => {
+                let message = `There was an error reading the following directory: ${directory}`;
+                console.error(message);
+                _.Utils.Server.prepareDefaultErrorResponse(response, message);
+                response.end();
+            });
+    }
 }
