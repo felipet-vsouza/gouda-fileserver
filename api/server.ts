@@ -1,10 +1,10 @@
 import * as server from './server.core';
-import * as configAPI from './config/config.api';
+import { Configuration } from './config/config';
 
 (function startServer() {
 
     let serverInstance = server.ServerCore.createServer();
-    let serverConfig = configAPI.Configuration.loadConfiguration();
+    let serverConfig = Configuration.loadConfiguration();
     serverInstance.listen(serverConfig.server.ports.fileserver);
 
 })();

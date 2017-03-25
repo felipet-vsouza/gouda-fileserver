@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as API from './server.api';
 import * as http from 'http';
 
-export module Utils {
+export namespace Utils {
 
     export namespace Server {
 
@@ -62,7 +62,7 @@ export module Utils {
 
     }
 
-    let buildAbsolutePath = function(path: string, dir: string): string {
+    function buildAbsolutePath(path: string, dir: string): string {
         return path.concat((require('path').sep)).concat(dir);
     }
 }
