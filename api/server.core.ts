@@ -7,6 +7,8 @@ import { join } from 'path';
 import { Utils } from './utils';
 import { Database } from './server.database';
 
+import { Business } from './business/file.business';
+
 export namespace ServerCore {
 
     let application: express.Express = express();
@@ -62,6 +64,7 @@ export namespace ServerCore {
             form.uploadDir = config.server.hostPath;
             form.on('file', (field: any, file: File) => {
                 Utils.FileSystem.renameFile(file.path, join(form.uploadDir, file.name));
+                Business.File.storeFile(file);
             })
                 .on('error', (error: any) => {
                     Utils.Logger.logAndNotice(error);
