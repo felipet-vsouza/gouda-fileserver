@@ -6,7 +6,11 @@ export namespace Utils {
 
     export namespace Server {
 
-        export function prepareDefaultSuccessResponse(response: http.ServerResponse, filename: string) {
+        export function prepareDefaultSuccessResponse(response: http.ServerResponse) {
+            response.writeHead(200);
+        }
+
+        export function prepareDefaultFileResponse(response: http.ServerResponse, filename: string) {
             response.writeHead(200, { 'Content-Disposition': `attachment; filename="${filename}"` });
         }
 
@@ -37,10 +41,10 @@ export namespace Utils {
             return new Promise((resolve: Function, reject: Function) => {
                 fs.access(absolutePath, fs.constants.F_OK, (error: NodeJS.ErrnoException) => {
                     if (error) {
-                        console.error(`USEFUL LOG - the server was unable to retrieve a requested resource (${absolutePath}): `, error);
+                        Logger.errorAndNotice(`the server was unable to retrieve a requested resource (${absolutePath}): ${error}`);
                         reject();
                     } else {
-                        console.info(`USEFUL LOG - the server just resolved a requested resource (${absolutePath}): `);
+                        Logger.logAndNotice(`the server just resolved a requested resource (${absolutePath})`);
                         resolve();
                     }
                 });
@@ -58,6 +62,32 @@ export namespace Utils {
                     }
                 });
             });
+        }
+
+        export function renameFile(originalPath: string, wantedPath: string) {
+            fs.rename(originalPath, wantedPath);
+        }
+
+    }
+
+    export namespace Logger {
+
+        export function log(data: any) {
+            console.log(data);
+        }
+
+        export function error(data: any) {
+            console.error(error);
+        }
+
+        export function logAndNotice(data: any, headline?: string) {
+            let formattedHeadline = headline ? ` (${headline})` : '';
+            Logger.log(`INFORMATIONAL LOG${formattedHeadline}: ${data}`);
+        }
+
+        export function errorAndNotice(data: any, headline?: string) {
+            let formattedHeadline = headline ? ` (${headline})` : '';
+            Logger.error(`EXCEPTIONAL ERROR LOG${formattedHeadline}: ${data}`);
         }
 
     }

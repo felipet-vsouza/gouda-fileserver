@@ -1,5 +1,7 @@
 import * as http from 'http';
 import * as express from 'express';
+import { join } from 'path';
+import { IncomingForm, File, Fields } from 'formidable';
 import { ServerResponse } from './server.api';
 import { Configuration } from './config/config';
 import { Utils } from './utils';
@@ -21,6 +23,9 @@ export namespace ServerCore {
             router.get('/file', (request: express.Request, response: express.Response) => {
                 Resources.serveFile(request, response);
             });
+            router.post('/file', (request: express.Request, response: express.Response) => {
+                Resources.storeFile(response);
+            });
             router.get('/list', (request: express.Request, response: express.Response) => {
                 Resources.listDirectory(request, response);
             });
@@ -34,13 +39,12 @@ export namespace ServerCore {
         export function serveFile(request: express.Request, response: express.Response) {
             if (!request || !request.query || !request.query.filename) {
                 Utils.Server.prepareDefaultErrorResponse(response);
-                response.end();
-                return;
+                return response.end();
             }
             let filename = request.query.filename;
             Utils.FileSystem.checkIfFileExists(config.server.hostPath, filename)
                 .then(() => {
-                    Utils.Server.prepareDefaultSuccessResponse(response, filename);
+                    Utils.Server.prepareDefaultFileResponse(response, filename);
                     Utils.Server.pipeReadStream(config.server.hostPath, filename, response);
                 })
                 .catch(() => {
@@ -50,12 +54,29 @@ export namespace ServerCore {
                 });
         }
 
+        export function storeFile(response: express.Response) {
+            let form: IncomingForm = new IncomingForm();
+            form.multiples = true;
+            form.uploadDir = config.server.hostPath;
+            form.on('file', (field: any, file: File) => {
+                Utils.FileSystem.renameFile(file.path, join(form.uploadDir, file.name));
+            })
+                .on('error', (error: any) => {
+                    Utils.Logger.logAndNotice(error);
+                    let message = 'One or more files could not be uploaded.';
+                    Utils.Server.prepareDefaultErrorResponse(response, message);
+                })
+                .on('end', () => {
+                    Utils.Server.prepareDefaultSuccessResponse(response);
+                    return response.end();
+                });
+        }
+
         export function listDirectory(request: express.Request, response: express.Response) {
             if (!request || !request.query) {
                 let message = 'There was an error processing this request.';
                 Utils.Server.prepareDefaultErrorResponse(response, message);
-                response.end();
-                return;
+                return response.end();
             }
             let directory = request.query.directory ? request.query.directory : '';
             Utils.FileSystem.listFiles(config.server.hostPath, directory)
