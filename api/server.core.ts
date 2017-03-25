@@ -1,18 +1,20 @@
 import * as http from 'http';
 import * as express from 'express';
-import { join } from 'path';
-import { IncomingForm, File, Fields } from 'formidable';
 import { ServerResponse } from './server.api';
 import { Configuration } from './config/config';
+import { IncomingForm, File, Fields } from 'formidable';
+import { join } from 'path';
 import { Utils } from './utils';
+import { Database } from './server.database';
 
 export namespace ServerCore {
 
     let application: express.Express = express();
-    let config: Configuration.IGeneralConfiguration = require('./config/config.json');
+    let config: Configuration.IConfiguration = require('./config/config.json');
 
     export function createServer(): http.Server {
         application.use('/api', Environment.configureRoutes());
+        Database.connect();
         return http.createServer(application);
     }
 

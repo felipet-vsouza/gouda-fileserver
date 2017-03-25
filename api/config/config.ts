@@ -1,7 +1,8 @@
 export namespace Configuration {
 
-    export interface IGeneralConfiguration {
+    export interface IConfiguration {
         server?: IServerConfiguration;
+        database?: IDatabaseConfiguration;
     }
 
     export interface IServerConfiguration {
@@ -11,6 +12,10 @@ export namespace Configuration {
 
     export interface IServerPortConfiguration {
         fileserver?: number;
+    }
+
+    export interface IDatabaseConfiguration {
+        connectionString?: string;
     }
 
 }
