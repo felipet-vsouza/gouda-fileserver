@@ -24,7 +24,7 @@ export namespace ServerCore {
                 Resources.serveFile(request, response);
             });
             router.post('/file', (request: express.Request, response: express.Response) => {
-                Resources.storeFile(response);
+                Resources.storeFile(request, response);
             });
             router.get('/list', (request: express.Request, response: express.Response) => {
                 Resources.listDirectory(request, response);
@@ -54,7 +54,7 @@ export namespace ServerCore {
                 });
         }
 
-        export function storeFile(response: express.Response) {
+        export function storeFile(request: express.Request, response: express.Response) {
             let form: IncomingForm = new IncomingForm();
             form.multiples = true;
             form.uploadDir = config.server.hostPath;
@@ -70,6 +70,7 @@ export namespace ServerCore {
                     Utils.Server.prepareDefaultSuccessResponse(response);
                     return response.end();
                 });
+            form.parse(request);
         }
 
         export function listDirectory(request: express.Request, response: express.Response) {
