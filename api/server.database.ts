@@ -8,12 +8,13 @@ export namespace Database {
 
     export function connect() {
         mongoose.connect(config.database.connectionString);
-        if (mongoose.connection) {
+        mongoose.connection.once('connected', () => {
             Utils.Logger.logAndNotify(`mongoose conected on ${config.database.connectionString}`, 'connection to MongoDB');
-        } else {
-            Utils.Logger.errorAndNotify(`an error ocurred while attempting to connect to ${config.database.connectionString}`);
-        }
-    };
+            if (config.database.clearDatabase) {
+                mongoose.connection.db.dropDatabase();
+            }
+        });
+    }
 
     export function disconnect() {
         mongoose.disconnect();

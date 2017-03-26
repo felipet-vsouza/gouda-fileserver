@@ -16,6 +16,7 @@ export namespace Configuration {
 
     export interface IDatabaseConfiguration {
         connectionString?: string;
+        clearDatabase?: boolean;
     }
 
 }
