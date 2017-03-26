@@ -1,39 +1,22 @@
-import { MongoClient, MongoCallback, MongoError, Db } from 'mongodb';
+import * as mongoose from 'mongoose';
 import { Utils } from './utils';
-import { Configuration } from './config/config';
+import { Configuration } from './config/config.api';
 
 let config: Configuration.IConfiguration = require('./config/config.json');
 
 export namespace Database {
 
-    class MongoDatabase {
-
-        public static instance: MongoDatabase;
-
-        constructor(database: Db) {
-            this.dbConnection = database;
-        }
-
-        private dbConnection: Db;
-
-        public getDbConnection(): Db {
-            return this.dbConnection;
-        }
-
-    }
-
     export function connect() {
-        MongoClient.connect(config.database.connectionString, (error: MongoError, database: Db) => {
-            if (error) {
-                Utils.Logger.errorAndNotice(`${error.name} - ${error.message}`, 'MongoDB error');
-            }
-            MongoDatabase.instance = new MongoDatabase(database);
-            Utils.Logger.log(`MongoDB connected on ${config.database.connectionString}`);
-        });
+        mongoose.connect(config.database.connectionString);
+        if (mongoose.connection) {
+            Utils.Logger.logAndNotify(`mongoose conected on ${config.database.connectionString}`, 'connection to MongoDB');
+        } else {
+            Utils.Logger.errorAndNotify(`an error ocurred while attempting to connect to ${config.database.connectionString}`);
+        }
     };
 
     export function disconnect() {
-        MongoDatabase.instance.getDbConnection().close();
+        mongoose.disconnect();
     }
 
 }

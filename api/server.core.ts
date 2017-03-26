@@ -1,7 +1,7 @@
 import * as http from 'http';
 import * as express from 'express';
 import { ServerResponse } from './server.api';
-import { Configuration } from './config/config';
+import { Configuration } from './config/config.api';
 import { IncomingForm, File, Fields } from 'formidable';
 import { join } from 'path';
 import { Utils } from './utils';
@@ -32,6 +32,9 @@ export namespace ServerCore {
             });
             router.get('/list', (request: express.Request, response: express.Response) => {
                 Resources.listDirectory(request, response);
+            });
+            router.get('/listall', (request: express.Request, response: express.Response) => {
+                Resources.listAllFiles(request, response);
             });
             return router;
         }
@@ -67,7 +70,7 @@ export namespace ServerCore {
                 Business.File.storeFile(file);
             })
                 .on('error', (error: any) => {
-                    Utils.Logger.logAndNotice(error);
+                    Utils.Logger.logAndNotify(error);
                     let message = 'One or more files could not be uploaded.';
                     Utils.Server.prepareDefaultErrorResponse(response, message);
                 })
@@ -98,6 +101,19 @@ export namespace ServerCore {
                     let message = `There was an error reading the following directory: ${directory}`;
                     console.error(message);
                     Utils.Server.prepareDefaultErrorResponse(response, message);
+                    response.end();
+                });
+        }
+
+        export function listAllFiles(request: express.Request, response: express.Response) {
+            Business.File.findAllFiles()
+                .then((files: any[]) => {
+                    Utils.Server.prepareJSONResponse(response);
+                    response.write(JSON.stringify(files));
+                    response.end();
+                })
+                .catch((reason: any) => {
+                    Utils.Server.prepareDefaultErrorResponse(response);
                     response.end();
                 });
         }

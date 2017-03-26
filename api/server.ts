@@ -1,5 +1,5 @@
 import { ServerCore } from './server.core';
-import { Configuration } from './config/config';
+import { Configuration } from './config/config.api';
 import { Database } from './server.database';
 
 (function startServer() {

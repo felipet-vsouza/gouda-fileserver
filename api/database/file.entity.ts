@@ -1,8 +1,9 @@
 import * as mongoose from 'mongoose';
 import { ObjectID } from 'mongodb';
-import { Configuration } from './../config/config';
+import { Configuration } from './../config/config.api';
 
 let config: Configuration.IConfiguration = require('./../config/config.json');
+(<any>mongoose).Promise = global.Promise;
 
 interface IFile extends mongoose.Document {
     id: ObjectID;
@@ -112,12 +113,25 @@ export class FileDTO {
         });
     }
 
-    static findById(id: string): Promise<File> {
+    static findById(id: ObjectID): Promise<File> {
         return new Promise<File>((resolve, reject) => {
             _model.findById(id)
                 .exec()
                 .then((file: IFile) => {
                     resolve(new File(file));
+                })
+                .catch((reason: any) => {
+                    reject(reason);
+                });
+        });
+    }
+
+    static findAll(): Promise<File[]> {
+        return new Promise<File[]>((resolve, reject) => {
+            _model.find({})
+                .exec()
+                .then((files: IFile[]) => {
+                    resolve(files.map((file: IFile) => new File(file)));
                 })
                 .catch((reason: any) => {
                     reject(reason);

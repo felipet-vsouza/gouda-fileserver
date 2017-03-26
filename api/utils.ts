@@ -41,10 +41,10 @@ export namespace Utils {
             return new Promise((resolve: Function, reject: Function) => {
                 fs.access(absolutePath, fs.constants.F_OK, (error: NodeJS.ErrnoException) => {
                     if (error) {
-                        Logger.errorAndNotice(`the server was unable to retrieve a requested resource (${absolutePath}): ${error}`);
+                        Logger.errorAndNotify(`the server was unable to retrieve a requested resource (${absolutePath}): ${error}`);
                         reject();
                     } else {
-                        Logger.logAndNotice(`the server just resolved a requested resource (${absolutePath})`);
+                        Logger.logAndNotify(`the server just resolved a requested resource (${absolutePath})`);
                         resolve();
                     }
                 });
@@ -80,12 +80,12 @@ export namespace Utils {
             console.error(error);
         }
 
-        export function logAndNotice(data: any, headline?: string) {
+        export function logAndNotify(data: any, headline?: string) {
             let formattedHeadline = headline ? ` (${headline})` : '';
             Logger.log(`INFORMATIONAL LOG${formattedHeadline}: ${data}`);
         }
 
-        export function errorAndNotice(data: any, headline?: string) {
+        export function errorAndNotify(data: any, headline?: string) {
             let formattedHeadline = headline ? ` (${headline})` : '';
             Logger.error(`EXCEPTIONAL ERROR LOG${formattedHeadline}: ${data}`);
         }

@@ -1,5 +1,6 @@
 import { File, FileDTO, FileBuilder } from './../database/file.entity';
 import { Utils } from './../utils';
+import { ObjectID } from 'mongodb';
 import * as formidable from 'formidable';
 
 export namespace Business.File {
@@ -13,8 +14,16 @@ export namespace Business.File {
             .build();
         FileDTO.create(fileToStore)
             .catch((reason: any) => {
-                Utils.Logger.errorAndNotice(reason, `information for file '${fileToStore.path}' could not be stored`);
+                Utils.Logger.errorAndNotify(reason, `information for file '${fileToStore.path}' could not be stored`);
             });
+    }
+
+    export function informationForFile(id: ObjectID): Promise<File> {
+        return FileDTO.findById(id);
+    }
+
+    export function findAllFiles(): Promise<any[]> {
+        return FileDTO.findAll();
     }
 
 }
