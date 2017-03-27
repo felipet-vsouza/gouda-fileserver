@@ -64,8 +64,8 @@ export namespace Utils {
             });
         }
 
-        export function renameFile(originalPath: string, wantedPath: string) {
-            fs.rename(originalPath, wantedPath);
+        export function renameFile(path: string, wantedPath: string) {
+            fs.rename(path, wantedPath);
         }
 
     }

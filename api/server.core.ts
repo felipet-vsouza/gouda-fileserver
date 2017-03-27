@@ -66,7 +66,9 @@ export namespace ServerCore {
             form.multiples = true;
             form.uploadDir = config.server.hostPath;
             form.on('file', (field: any, file: File) => {
-                Utils.FileSystem.renameFile(file.path, join(form.uploadDir, file.name));
+                let originalPath = join(form.uploadDir, file.name);
+                Utils.FileSystem.renameFile(file.path, originalPath);
+                file.path = originalPath;
                 Business.File.storeFile(file);
             })
                 .on('error', (error: any) => {
