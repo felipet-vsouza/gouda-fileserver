@@ -3,7 +3,6 @@ import { ObjectID } from 'mongodb';
 import { Configuration } from './../config/config.api';
 
 let config: Configuration.IConfiguration = require('./../config/config.json');
-(<any>mongoose).Promise = global.Promise;
 
 interface IFile extends mongoose.Document {
     id: ObjectID;
@@ -12,6 +11,7 @@ interface IFile extends mongoose.Document {
     path: string;
     private: boolean;
     size: number;
+    directoryId: ObjectID;
 }
 
 let _schema: mongoose.Schema = new mongoose.Schema({
@@ -31,10 +31,14 @@ let _schema: mongoose.Schema = new mongoose.Schema({
         type: mongoose.Schema.Types.String,
         required: true
     },
-    private: Boolean,
+    private: mongoose.Schema.Types.Boolean,
     size: {
         type: mongoose.Schema.Types.Number,
         required: true
+    },
+    directoryId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Directory'
     }
 });
 
@@ -48,6 +52,7 @@ export class File {
     path: string;
     private: boolean;
     size: number;
+    directoryId: ObjectID;
 
     constructor(file?: IFile) {
         if (file) {
@@ -57,6 +62,7 @@ export class File {
             this.path = file.path;
             this.private = file.private;
             this.size = file.size;
+            this.directoryId = file.directoryId;
         }
     }
 
@@ -68,7 +74,7 @@ export class FileBuilder {
 
     constructor() {
         this.file = new File();
-        this.file.id = new ObjectID();
+        this.file.id = mongoose.Types.ObjectId();
         this.file.uploaded = new Date();
         return this;
     }
@@ -90,6 +96,11 @@ export class FileBuilder {
 
     withSize(size: number) {
         this.file.size = size;
+        return this;
+    }
+
+    withDirectory(directoryId: ObjectID) {
+        this.file.directoryId = directoryId;
         return this;
     }
 

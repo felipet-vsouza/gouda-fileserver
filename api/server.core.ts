@@ -1,5 +1,6 @@
 import * as http from 'http';
 import * as express from 'express';
+import * as bodyParser from 'body-parser';
 import { ServerResponse } from './server.api';
 import { Configuration } from './config/config.api';
 import { IncomingForm, File, Fields } from 'formidable';
@@ -15,6 +16,7 @@ export namespace ServerCore {
     let config: Configuration.IConfiguration = require('./config/config.json');
 
     export function createServer(): http.Server {
+        application.use(bodyParser.json());
         application.use('/api', Environment.configureRoutes());
         Database.connect();
         return http.createServer(application);
@@ -33,8 +35,14 @@ export namespace ServerCore {
             router.get('/list', (request: express.Request, response: express.Response) => {
                 Resources.listDirectory(request, response);
             });
-            router.get('/listall', (request: express.Request, response: express.Response) => {
+            router.get('/file/listall', (request: express.Request, response: express.Response) => {
                 Resources.listAllFiles(request, response);
+            });
+            router.post('/directory', (request: express.Request, response: express.Response) => {
+                Resources.createDirectory(request, response);
+            });
+            router.delete('/directory', (request: express.Request, response: express.Response) => {
+                Resources.deleteDirectory(request, response);
             });
             return router;
         }
@@ -105,6 +113,14 @@ export namespace ServerCore {
                     Utils.Server.prepareDefaultErrorResponse(response, message);
                     response.end();
                 });
+        }
+
+        export function createDirectory(request: express.Request, response: express.Response) {
+
+        }
+
+        export function deleteDirectory(request: express.Request, response: express.Response) {
+
         }
 
         export function listAllFiles(request: express.Request, response: express.Response) {
