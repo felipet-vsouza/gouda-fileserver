@@ -33,7 +33,8 @@ let _schema: mongoose.Schema = new mongoose.Schema({
     private: mongoose.Schema.Types.Boolean,
     superdirectoryId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Directory'
+        ref: 'Directory',
+        required: false
     }
 });
 

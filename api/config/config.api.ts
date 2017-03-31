@@ -16,7 +16,14 @@ export namespace Configuration {
 
     export interface IDatabaseConfiguration {
         connectionString?: string;
+        url?: string;
+        port?: number;
         clearDatabase?: boolean;
+        seed: IDatabaseSeed;
+    }
+
+    export interface IDatabaseSeed {
+        file: string;
     }
 
 }

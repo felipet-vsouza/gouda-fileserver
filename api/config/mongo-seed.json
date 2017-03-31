@@ -1,0 +1,11 @@
+{
+    "dataFormat": "EXTENDED", // supported types  or DRIVER
+    "Directory": [
+        {
+            "id": 1,
+            "name": "root",
+            "path": "~/Documents/gouda/host",
+            "private": false
+        }
+    ]
+}

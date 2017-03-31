@@ -34,6 +34,7 @@
     "gulp-tslint": "^7.1.0",
     "gulp-typescript": "^3.1.4",
     "json-loader": "^0.5.4",
+    "mongo-seed": "^0.6.0",
     "mongodb": "^2.2.25",
     "mongoose": "^4.9.1",
     "nodemon": "^1.11.0",

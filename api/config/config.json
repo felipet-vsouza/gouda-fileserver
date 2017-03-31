@@ -1,12 +1,17 @@
 {
     "server": {
-        "hostPath": "C:\\Users\\Felps-Notebook\\Documents\\Programming\\Node.js\\true-file-server\\host",
+        "hostPath": "~/Documents/gouda/host",
         "ports": {
             "fileserver": 8080
         }
     },
     "database": {
         "connectionString": "mongodb://127.0.0.1:27017",
-        "clearDatabase": true
+        "url": "127.0.0.1",
+        "port": 27017,
+        "clearDatabase": true,
+        "seed": {
+            "file": "~/Documents/github/gouda-fileserver/config/mongo-seed.json"
+        }
     }
 }
