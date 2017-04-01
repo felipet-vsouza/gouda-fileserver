@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import * as API from './server.api';
 import * as http from 'http';
+import { join } from 'path';
 
 export namespace Utils {
 
@@ -55,17 +56,64 @@ export namespace Utils {
             let absolutePath = buildAbsolutePath(path, directory);
             return new Promise((resolve: Function, reject: Function) => {
                 fs.readdir(absolutePath, (error: NodeJS.ErrnoException, files: string[]) => {
-                    if (error) {
-                        reject(error);
-                    } else {
-                        resolve(files);
-                    }
+                    error ? reject(error) : resolve(files);
                 });
+            });
+        }
+
+        export function copyAndRemoveFile(currentPath: string, destinationPath: string): Promise<any> {
+            return new Promise<any>((resolve: Function, reject: Function) => {
+                let readStream = fs.createReadStream(currentPath);
+                readStream.on('error', (error: any) => {
+                    reject(error);
+                });
+                let writeStream = fs.createWriteStream(destinationPath);
+                writeStream.on('error', (error: any) => {
+                    reject(error);
+                });
+                writeStream.on('close', () => {
+                    fs.unlinkSync(currentPath);
+                    resolve();
+                });
+                readStream.pipe(writeStream);
             });
         }
 
         export function renameFile(path: string, wantedPath: string) {
             fs.rename(path, wantedPath);
+        }
+
+        export function createDirectory(path: string): Promise<any> {
+            return new Promise((resolve: Function, reject: Function) => {
+                fs.mkdir(path, (error: NodeJS.ErrnoException) => {
+                    error ? reject() : resolve();
+                });
+            });
+        }
+
+        export function removeDirectory(path: string): Promise<any> {
+            return new Promise((resolve: Function, reject: Function) => {
+                fs.rmdir(path, (error: NodeJS.ErrnoException) => {
+                    error ? reject() : resolve();
+                });
+            });
+        }
+
+        export function clearDirectory(path: string): Promise<any> {
+            return new Promise((resolve: Function, reject: Function) => {
+                fs.readdir(path, (error: NodeJS.ErrnoException, files: string[]) => {
+                    if (!error) {
+                        reject();
+                    }
+                    files.forEach((file: string) => {
+                        let absolutePath = join(path, file);
+                        if (fs.lstatSync(absolutePath).isFile()) {
+                            fs.unlinkSync(absolutePath);
+                        }
+                    });
+                    resolve();
+                });
+            });
         }
 
     }
@@ -77,7 +125,7 @@ export namespace Utils {
         }
 
         export function error(data: any) {
-            console.error(error);
+            console.error(data);
         }
 
         export function logAndNotify(data: any, headline?: string) {

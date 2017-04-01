@@ -7,6 +7,7 @@ export namespace Configuration {
 
     export interface IServerConfiguration {
         hostPath?: string;
+        temporaryUploadPath?: string;
         ports?: IServerPortConfiguration;
     }
 
@@ -23,7 +24,7 @@ export namespace Configuration {
     }
 
     export interface IDatabaseSeed {
-        file: string;
+        module: string;
     }
 
 }

@@ -113,40 +113,34 @@ export class FileBuilder {
 export class FileDTO {
 
     static create(file: File): Promise<File> {
-        return new Promise<File>((resolve, reject) => {
+        return new Promise<File>((resolve: Function, reject: Function) => {
             _model.create(file)
                 .then((file: IFile) => {
                     resolve(new File(file));
                 })
-                .catch((reason: any) => {
-                    reject(reason);
-                });
+                .catch((reason: any) => reject(reason));
         });
     }
 
     static findById(id: ObjectID): Promise<File> {
-        return new Promise<File>((resolve, reject) => {
+        return new Promise<File>((resolve: Function, reject: Function) => {
             _model.findById(id)
                 .exec()
                 .then((file: IFile) => {
                     resolve(new File(file));
                 })
-                .catch((reason: any) => {
-                    reject(reason);
-                });
+                .catch((reason: any) => reject(reason));
         });
     }
 
     static findAll(): Promise<File[]> {
-        return new Promise<File[]>((resolve, reject) => {
+        return new Promise<File[]>((resolve: Function, reject: Function) => {
             _model.find({})
                 .exec()
                 .then((files: IFile[]) => {
                     resolve(files.map((file: IFile) => new File(file)));
                 })
-                .catch((reason: any) => {
-                    reject(reason);
-                });
+                .catch((reason: any) => reject(reason));
         });
     }
 

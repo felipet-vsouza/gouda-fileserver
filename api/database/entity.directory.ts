@@ -23,12 +23,10 @@ let _schema: mongoose.Schema = new mongoose.Schema({
         default: Date.now
     },
     name: {
-        type: mongoose.Schema.Types.String,
-        required: true
+        type: mongoose.Schema.Types.String
     },
     path: {
-        type: mongoose.Schema.Types.String,
-        required: true
+        type: mongoose.Schema.Types.String
     },
     private: mongoose.Schema.Types.Boolean,
     superdirectoryId: {
@@ -102,40 +100,66 @@ export class DirectoryBuilder {
 export class DirectoryDTO {
 
     static create(directory: Directory): Promise<Directory> {
-        return new Promise<Directory>((resolve, reject) => {
+        return new Promise<Directory>((resolve: Function, reject: Function) => {
             _model.create(directory)
                 .then((directory: IDirectory) => {
                     resolve(new Directory(directory));
                 })
-                .catch((reason: any) => {
-                    reject(reason);
-                });
+                .catch((reason: any) => reject(reason));
         });
     }
 
     static findById(id: ObjectID): Promise<Directory> {
-        return new Promise<Directory>((resolve, reject) => {
-            _model.findById(id)
+        return new Promise<Directory>((resolve: Function, reject: Function) => {
+            _model.find({
+                id: id
+            })
                 .exec()
-                .then((directory: IDirectory) => {
-                    resolve(new Directory(directory));
+                .then((directories: IDirectory[]) => {
+                    (!directories || directories.length === 0 || directories.length > 1) ?
+                        reject('The directory could not be found.') :
+                        resolve(new Directory(directories[0]));
                 })
-                .catch((reason: any) => {
-                    reject(reason);
-                });
+                .catch((reason: any) => reject(reason));
         });
     }
 
     static findAll(): Promise<Directory[]> {
-        return new Promise<Directory[]>((resolve, reject) => {
+        return new Promise<Directory[]>((resolve: Function, reject: Function) => {
             _model.find({})
                 .exec()
                 .then((files: IDirectory[]) => {
                     resolve(files.map((directory: IDirectory) => new Directory(directory)));
                 })
-                .catch((reason: any) => {
-                    reject(reason);
-                });
+                .catch((reason: any) => reject(reason));
+        });
+    }
+
+    static findSubdirectories(directory: Directory): Promise<Directory[]> {
+        return new Promise<Directory[]>((resolve: Function, reject: Function) => {
+            _model.find({
+                superdirectoryId: directory.superdirectoryId
+            })
+                .exec()
+                .then((files: IDirectory[]) => {
+                    resolve(files.map((directory: IDirectory) => new Directory(directory)));
+                })
+                .catch((reason: any) => reject(reason));
+        });
+    }
+
+    static removeDirectoryAndSubdirectories(directory: Directory): Promise<any> {
+        return new Promise<Directory[]>((resolve: Function, reject: Function) => {
+            _model.find({
+                $or: [
+                    { superdirectoryId: directory.id },
+                    { id: directory.id }
+                ]
+            })
+                .remove()
+                .exec()
+                .then((value: any) => resolve())
+                .catch((reason: any) => reject(reason));
         });
     }
 

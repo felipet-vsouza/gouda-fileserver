@@ -1,5 +1,4 @@
 import * as mongoose from 'mongoose';
-import * as mongoSeed from 'mongo-seed';
 import { Utils } from './utils';
 import { Configuration } from './config/config.api';
 
@@ -19,10 +18,6 @@ export namespace Database {
             if (config.database.clearDatabase) {
                 mongoose.connection.db.dropDatabase();
             }
-            mongoSeed.load(config.database.url, config.database.port, 'Directory', config.database.seed.file,
-                'file', (error: any) => {
-                    Utils.Logger.error('there was a problem deplyoing the database seed');
-                });
         });
     }
 

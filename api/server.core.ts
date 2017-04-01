@@ -3,12 +3,12 @@ import * as express from 'express';
 import * as bodyParser from 'body-parser';
 import { ServerResponse } from './server.api';
 import { Configuration } from './config/config.api';
-import { IncomingForm, File, Fields } from 'formidable';
+import { IncomingForm, File, Files, Fields } from 'formidable';
 import { join } from 'path';
 import { Utils } from './utils';
 import { Database } from './server.database';
 
-import { Business } from './business/file.business';
+import * as Business from './business/business';
 
 export namespace ServerCore {
 
@@ -19,6 +19,7 @@ export namespace ServerCore {
         application.use(bodyParser.json());
         application.use('/api', Environment.configureRoutes());
         Database.connect();
+        Business.DirectoryBiz.seedDatabase();
         return http.createServer(application);
     }
 
@@ -43,6 +44,9 @@ export namespace ServerCore {
             });
             router.delete('/directory', (request: express.Request, response: express.Response) => {
                 Resources.deleteDirectory(request, response);
+            });
+            router.get('/directory/listall', (request: express.Request, response: express.Response) => {
+                Resources.listAllDirectories(request, response);
             });
             return router;
         }
@@ -70,25 +74,35 @@ export namespace ServerCore {
         }
 
         export function storeFile(request: express.Request, response: express.Response) {
+            if (!request || !request.body) {
+                let message = 'There was an error processing this request.';
+                Utils.Server.prepareDefaultErrorResponse(response, message);
+                return response.end();
+            }
             let form: IncomingForm = new IncomingForm();
-            form.multiples = true;
-            form.uploadDir = config.server.hostPath;
-            form.on('file', (field: any, file: File) => {
-                let originalPath = join(form.uploadDir, file.name);
-                Utils.FileSystem.renameFile(file.path, originalPath);
-                file.path = originalPath;
-                Business.File.storeFile(file);
-            })
-                .on('error', (error: any) => {
+            form.multiples = false;
+            form.uploadDir = config.server.temporaryUploadPath;
+            form.parse(request, (error: any, fields: Fields, files: Files) => {
+                if (error) {
                     Utils.Logger.logAndNotify(error);
-                    let message = 'One or more files could not be uploaded.';
+                    let message = 'This file could not be uploaded.';
                     Utils.Server.prepareDefaultErrorResponse(response, message);
-                })
-                .on('end', () => {
-                    Utils.Server.prepareDefaultSuccessResponse(response);
                     return response.end();
-                });
-            form.parse(request);
+                }
+                Business.FileBiz.storeFile(files['commonFile'], fields, form.uploadDir)
+                    .then((created: any) => {
+                        Utils.Server.prepareJSONResponse(response);
+                        response.write(JSON.stringify({
+                            storedFile: created
+                        }));
+                        response.end();
+                    })
+                    .catch((reason: any) => {
+                        let message = 'This file could not be uploaded.';
+                        Utils.Server.prepareDefaultErrorResponse(response, message);
+                        return response.end();
+                    });
+            });
         }
 
         export function listDirectory(request: express.Request, response: express.Response) {
@@ -116,18 +130,67 @@ export namespace ServerCore {
         }
 
         export function createDirectory(request: express.Request, response: express.Response) {
-
+            if (!request || !request.body || !request.body.directory) {
+                let message = 'There was an error processing this request.';
+                Utils.Server.prepareDefaultErrorResponse(response, message);
+                return response.end();
+            }
+            let directory = request.body.directory;
+            Business.DirectoryBiz.createDirectory(directory)
+                .then((directory: any) => {
+                    Utils.Server.prepareJSONResponse(response);
+                    response.write(JSON.stringify({
+                        createdDirectory: directory
+                    }));
+                    response.end();
+                })
+                .catch((error: NodeJS.ErrnoException) => {
+                    Utils.Logger.errorAndNotify(`There was an error creating the following directory: ${directory} - ${error}`);
+                    Utils.Server.prepareDefaultErrorResponse(response);
+                    response.end();
+                });
         }
 
         export function deleteDirectory(request: express.Request, response: express.Response) {
-
+            if (!request || !request.body || !request.body.directory) {
+                let message = 'There was an error processing this request.';
+                Utils.Server.prepareDefaultErrorResponse(response, message);
+                return response.end();
+            }
+            let directory = request.body.directory;
+            Business.DirectoryBiz.removeDirectory(directory)
+                .then((directory: any) => {
+                    Utils.Server.prepareJSONResponse(response);
+                    response.write(JSON.stringify({
+                        removedDirectory: directory
+                    }));
+                    response.end();
+                })
+                .catch((error: NodeJS.ErrnoException) => {
+                    Utils.Logger.errorAndNotify(`There was an error removing the following directory: ${directory} - ${error}`);
+                    Utils.Server.prepareDefaultErrorResponse(response);
+                    response.end();
+                });
         }
 
         export function listAllFiles(request: express.Request, response: express.Response) {
-            Business.File.findAllFiles()
+            Business.FileBiz.findAllFiles()
                 .then((files: any[]) => {
                     Utils.Server.prepareJSONResponse(response);
                     response.write(JSON.stringify(files));
+                    response.end();
+                })
+                .catch((reason: any) => {
+                    Utils.Server.prepareDefaultErrorResponse(response);
+                    response.end();
+                });
+        }
+
+        export function listAllDirectories(request: express.Request, response: express.Response) {
+            Business.DirectoryBiz.findAllDirectories()
+                .then((directories: any[]) => {
+                    Utils.Server.prepareJSONResponse(response);
+                    response.write(JSON.stringify(directories));
                     response.end();
                 })
                 .catch((reason: any) => {
