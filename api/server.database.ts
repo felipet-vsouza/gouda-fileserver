@@ -10,15 +10,18 @@ export namespace Database {
         (<any>mongoose).Promise = global.Promise;
     }
 
-    export function connect() {
+    export function connect(): Promise<any> {
         configure();
-        mongoose.connect(config.database.connectionString);
-        mongoose.connection.once('connected', () => {
-            Utils.Logger.logAndNotify(`mongoose conected on ${config.database.connectionString}`, 'connection to MongoDB');
-            if (config.database.clearDatabase) {
-                mongoose.connection.db.dropDatabase();
-            }
-        });
+        return mongoose.connect(config.database.connectionString)
+            .then(() => {
+                Utils.Logger.logAndNotify(`mongoose conected on ${config.database.connectionString}`, 'connection to MongoDB');
+                if (config.database.clearDatabase) {
+                    mongoose.connection.db.dropDatabase();
+                }
+            })
+            .catch((reason: any) => {
+                throw 'Failed to connect to database.';
+            });
     }
 
     export function disconnect() {

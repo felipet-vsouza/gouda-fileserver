@@ -15,12 +15,21 @@ export namespace ServerCore {
     let application: express.Express = express();
     let config: Configuration.IConfiguration = require('./config/config.json');
 
-    export function createServer(): http.Server {
-        application.use(bodyParser.json());
-        application.use('/api', Environment.configureRoutes());
-        Database.connect();
-        Business.DirectoryBiz.seedDatabase();
-        return http.createServer(application);
+    export async function createServer(): Promise<http.Server> {
+        return new Promise<http.Server>((resolve: Function, reject: Function) => {
+            application.use(bodyParser.json());
+            application.use('/api', Environment.configureRoutes());
+            return Database.connect()
+                .then(() => {
+                    return Business.DirectoryBiz.seedDatabase();
+                })
+                .then(() => {
+                    resolve(http.createServer(application));
+                })
+                .catch(() => {
+                    reject();
+                });
+        });
     }
 
     namespace Environment {

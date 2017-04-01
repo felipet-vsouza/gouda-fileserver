@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import * as API from './server.api';
 import * as http from 'http';
+import * as nodeNotifier from 'node-notifier';
 import { join } from 'path';
 
 export namespace Utils {
@@ -136,6 +137,26 @@ export namespace Utils {
         export function errorAndNotify(data: any, headline?: string) {
             let formattedHeadline = headline ? ` (${headline})` : '';
             Logger.error(`EXCEPTIONAL ERROR LOG${formattedHeadline}: ${data}`);
+        }
+
+    }
+
+    export namespace Notifier {
+
+        export function notifyInfo(message: string) {
+            nodeNotifier.notify({
+                title: 'Gouda Info',
+                message: message,
+                sound: true
+            });
+        }
+
+        export function notifyError(message: string) {
+            nodeNotifier.notify({
+                title: 'Gouda Error',
+                message: message,
+                sound: true
+            });
         }
 
     }

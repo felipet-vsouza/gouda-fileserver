@@ -9,12 +9,15 @@ let config = require('./../config/config.json') as Configuration.IConfiguration;
 
 export namespace DirectoryBiz {
 
-    export function seedDatabase(): void {
-        let directories: Directory[] = require(config.database.seed.module)().Directory;
-        directories.forEach((directory: Directory) => {
-            DirectoryDTO.create(directory)
-                .then((created: Directory) => Utils.Logger.logAndNotify(`seeded Directory ${created.path}`, 'mongodb-seed'))
-                .catch((reason: any) => Utils.Logger.errorAndNotify(`problem while seeding Directory: ${reason}`, 'mongodb-seed'));
+    export function seedDatabase(): Promise<any> {
+        return new Promise<any>((resolve: Function, reject: Function) => {
+            let directories: Directory[] = require(config.database.seed.module)().Directory;
+            directories.forEach((directory: Directory) => {
+                DirectoryDTO.create(directory)
+                    .then((created: Directory) => Utils.Logger.logAndNotify(`seeded Directory ${created.path}`, 'mongodb-seed'))
+                    .catch((reason: any) => Utils.Logger.errorAndNotify(`problem while seeding Directory: ${reason}`, 'mongodb-seed') && reject());
+            });
+            resolve();
         });
     }
 
