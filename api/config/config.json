@@ -7,7 +7,7 @@
         }
     },
     "database": {
-        "connectionString": "mongodb://127.0.0.1:27017",
+        "connectionString": "mongodb://127.0.0.1:27017/Gouda",
         "url": "127.0.0.1",
         "port": 27017,
         "clearDatabase": true,
