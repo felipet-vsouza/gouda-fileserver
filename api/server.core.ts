@@ -48,6 +48,9 @@ export namespace ServerCore {
             router.get('/file/listall', (request: express.Request, response: express.Response) => {
                 Resources.listAllFiles(request, response);
             });
+            router.get('/directory/:directoryId?', (request: express.Request, response: express.Response) => {
+                Resources.getDirectory(request, response);
+            });
             router.post('/directory', (request: express.Request, response: express.Response) => {
                 Resources.createDirectory(request, response);
             });
@@ -134,6 +137,26 @@ export namespace ServerCore {
                     let message = `There was an error reading the following directory: ${directory}`;
                     console.error(message);
                     Utils.Server.prepareDefaultErrorResponse(response, message);
+                    response.end();
+                });
+        }
+
+        export function getDirectory(request: express.Request, response: express.Response) {
+            if (!request || !request.params) {
+                let message = 'There was an error processing this request.';
+                Utils.Server.prepareDefaultErrorResponse(response, message);
+                return response.end();
+            }
+            let directoryId = request.params.directoryId;
+            Business.DirectoryBiz.getDirectoryAndFiles(directoryId)
+                .then((directoryAndFiles: any) => {
+                    Utils.Server.prepareJSONResponse(response);
+                    response.write(JSON.stringify(directoryAndFiles));
+                    response.end();
+                })
+                .catch((error: NodeJS.ErrnoException) => {
+                    Utils.Logger.errorAndNotify(`There was an error aquiring the information to the following directory: ${directoryId} - ${error}`);
+                    Utils.Server.prepareDefaultErrorResponse(response);
                     response.end();
                 });
         }

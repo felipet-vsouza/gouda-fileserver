@@ -144,4 +144,15 @@ export class FileDTO {
         });
     }
 
+    static findByDirectoryId(directoryId: ObjectID): Promise<File[]> {
+        return new Promise<File[]>((resolve: Function, reject: Function) => {
+            _model.find({
+                directoryId: directoryId
+            })
+                .exec()
+                .then((files: File[]) => resolve(files))
+                .catch((reason: any) => reject(reason));
+        });
+    }
+
 }

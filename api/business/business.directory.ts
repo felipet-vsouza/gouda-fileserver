@@ -1,4 +1,5 @@
 import { Directory, DirectoryDTO, DirectoryBuilder } from './../database/entity.directory';
+import { File, FileDTO } from './../database/entity.file';
 import { Utils } from './../utils';
 import { ObjectID } from 'mongodb';
 import { join } from 'path';
@@ -18,6 +19,27 @@ export namespace DirectoryBiz {
                     .catch((reason: any) => Utils.Logger.errorAndNotify(`problem while seeding Directory: ${reason}`, 'mongodb-seed') && reject());
             });
             resolve();
+        });
+    }
+
+    export async function getDirectoryAndFiles(directoryId: any): Promise<Directory> {
+        return new Promise<Directory>((resolve: Function, reject: Function) => {
+            let dataSource: Promise<Directory> = directoryId ?
+                DirectoryDTO.findById(directoryId) :
+                DirectoryDTO.findRoot();
+            let directoryAndFiles: any = {};
+            dataSource
+                .then((directory: Directory) => {
+                    directoryAndFiles.directory = directory;
+                    return FileDTO.findByDirectoryId(directory.id);
+                })
+                .then((files: File[]) => {
+                    directoryAndFiles.files = files;
+                    resolve(directoryAndFiles);
+                })
+                .catch((reason: any) => {
+                    reject(reason);
+                });
         });
     }
 

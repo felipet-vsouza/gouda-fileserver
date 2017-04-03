@@ -163,4 +163,19 @@ export class DirectoryDTO {
         });
     }
 
+    static findRoot(): Promise<Directory> {
+        return new Promise<Directory>((resolve: Function, reject: Function) => {
+            _model.find({
+                name: 'root'
+            })
+                .exec()
+                .then((found: Directory[]) => {
+                    found && found.length > 0 ?
+                        resolve(found[0]) :
+                        reject('The root directory could not be found.');
+                })
+                .catch((reason: any) => reject(reason));
+        });
+    }
+
 }
