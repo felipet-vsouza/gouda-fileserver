@@ -4,8 +4,7 @@
   "description": "Simple file server developed using Node.js and TypeScript",
   "main": "server.js",
   "scripts": {
-    "start": "npm run build:live && mongod --config C:\\mongodb\\mongodb.cfg",
-    "build:live": "nodemon --exec ./node_modules/.bin/ts-node -- ./src/core/server.ts",
+    "start": "node ~/Documents/github/gouda-fileserver/dist/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
