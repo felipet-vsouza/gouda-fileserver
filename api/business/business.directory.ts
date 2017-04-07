@@ -109,6 +109,8 @@ export namespace DirectoryBiz {
             let subdirectories: Directory[] = await DirectoryDAO.findSubdirectories(directory);
             for (let index = 0; index < subdirectories.length; index++) {
                 await Utils.FileSystem.clearDirectory(subdirectories[index].path);
+                let files: File[] = await FileDAO.findByDirectoryId(subdirectories[index].id);
+                files.forEach((file: File) => FileDAO.removeFile(file.id));
                 DirectoryBusiness.removeDirectoryAndSubdirectories(subdirectories[index]);
                 await Utils.FileSystem.removeDirectory(subdirectories[index].path);
             }
