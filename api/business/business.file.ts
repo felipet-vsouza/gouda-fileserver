@@ -10,7 +10,10 @@ export namespace FileBiz {
     export function getFile(fileId: any): Promise<File> {
         let file: File;
         return new Promise<File>((resolve: Function, reject: Function) => {
-            FileBiz.informationForFile(fileId)
+            if (!fileId || !Utils.Validation.isInteger(fileId)) {
+                return reject('Invalid id: this request did not meet the expectations.');
+            }
+            FileBiz.informationForFile(parseInt(fileId))
                 .then((found: File) => {
                     file = found;
                     return Utils.FileSystem.checkIfFileExists(file.path);
@@ -38,7 +41,7 @@ export namespace FileBiz {
                         .withPath(destinationPath)
                         .withPrivate(fileData.private ? fileData.private : false)
                         .withSize(file.size)
-                        .withDirectory(directory.id)
+                        .withDirectory(directory._id)
                         .build();
                     return FileDAO.create(fileToStore);
                 })
@@ -53,13 +56,13 @@ export namespace FileBiz {
 
     export function removeFile(id: any): Promise<File> {
         return new Promise<File>((resolve: Function, reject: Function) => {
-            if (!id) {
-                return reject('Invalid File: this request did not meet the expectations.');
+            if (!id || !Utils.Validation.isInteger(id)) {
+                return reject('Invalid id: this request did not meet the expectations.');
             }
-            FileBiz.informationForFile(id)
+            FileBiz.informationForFile(parseInt(id))
                 .then((file: File) => {
                     Utils.FileSystem.removeFile(file.path);
-                    FileDAO.removeFile(file.id);
+                    FileDAO.removeFile(file._id);
                     resolve(file);
                 })
                 .catch((cause: any) => reject(cause));

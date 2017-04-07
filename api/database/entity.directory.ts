@@ -1,23 +1,21 @@
 import * as mongoose from 'mongoose';
 import { ObjectID } from 'mongodb';
 import { Configuration } from './../config/config.api';
+import * as autoIncrement from 'mongoose-sequence';
 
 let config: Configuration.IConfiguration = require('./../config/config.json');
 
 interface IDirectory extends mongoose.Document {
-    id: ObjectID;
+    _id: number;
     created: Date;
     name: string;
     path: string;
     private: boolean;
-    superdirectoryId: ObjectID;
+    superdirectoryId: number;
 }
 
 let _schema: mongoose.Schema = new mongoose.Schema({
-    id: {
-        type: mongoose.Schema.Types.ObjectId,
-        required: true
-    },
+    _id: mongoose.Schema.Types.Number,
     created: {
         type: mongoose.Schema.Types.Date,
         default: Date.now
@@ -30,26 +28,28 @@ let _schema: mongoose.Schema = new mongoose.Schema({
     },
     private: mongoose.Schema.Types.Boolean,
     superdirectoryId: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: mongoose.Schema.Types.Number,
         ref: 'Directory',
         required: false
     }
-});
+}, { _id: false });
+
+_schema.plugin(autoIncrement);
 
 let _model: mongoose.Model<IDirectory> = mongoose.model<IDirectory>('Directory', _schema);
 
 export class Directory {
 
-    id: ObjectID;
+    _id: number;
     created: Date;
     name: string;
     path: string;
     private: boolean;
-    superdirectoryId: ObjectID;
+    superdirectoryId: number;
 
     constructor(directory?: IDirectory) {
         if (directory) {
-            this.id = directory.id;
+            this._id = directory._id;
             this.created = directory.created;
             this.name = directory.name;
             this.path = directory.path;
@@ -66,7 +66,6 @@ export class DirectoryBuilder {
 
     constructor() {
         this.directory = new Directory();
-        this.directory.id = mongoose.Types.ObjectId();
         this.directory.created = new Date();
         return this;
     }
@@ -86,7 +85,7 @@ export class DirectoryBuilder {
         return this;
     }
 
-    withSuperdirectory(superdirectoryId: ObjectID) {
+    withSuperdirectory(superdirectoryId: number) {
         this.directory.superdirectoryId = superdirectoryId;
         return this;
     }
@@ -109,16 +108,12 @@ export class DirectoryDAO {
         });
     }
 
-    static findById(id: ObjectID): Promise<Directory> {
+    static findById(id: number): Promise<Directory> {
         return new Promise<Directory>((resolve: Function, reject: Function) => {
-            _model.find({
-                id: id
-            })
+            _model.findById(id)
                 .exec()
-                .then((directories: IDirectory[]) => {
-                    (!directories || directories.length === 0 || directories.length > 1) ?
-                        reject('The directory could not be found.') :
-                        resolve(new Directory(directories[0]));
+                .then((directory: IDirectory) => {
+                    resolve(new Directory(directory));
                 })
                 .catch((reason: any) => reject(reason));
         });
@@ -138,7 +133,7 @@ export class DirectoryDAO {
     static findSubdirectories(directory: Directory): Promise<Directory[]> {
         return new Promise<Directory[]>((resolve: Function, reject: Function) => {
             _model.find({
-                superdirectoryId: directory.id
+                superdirectoryId: directory._id
             })
                 .exec()
                 .then((files: IDirectory[]) => {
@@ -152,8 +147,8 @@ export class DirectoryDAO {
         return new Promise<Directory[]>((resolve: Function, reject: Function) => {
             _model.find({
                 $or: [
-                    { superdirectoryId: directory.id },
-                    { id: directory.id }
+                    { superdirectoryId: directory._id },
+                    { id: directory._id }
                 ]
             })
                 .remove()

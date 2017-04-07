@@ -1,24 +1,22 @@
 import * as mongoose from 'mongoose';
 import { ObjectID } from 'mongodb';
 import { Configuration } from './../config/config.api';
+import * as autoIncrement from 'mongoose-sequence';
 
 let config: Configuration.IConfiguration = require('./../config/config.json');
 
 interface IFile extends mongoose.Document {
-    id: ObjectID;
+    _id: number;
     uploaded: Date;
     name: string;
     path: string;
     private: boolean;
     size: number;
-    directoryId: ObjectID;
+    directoryId: number;
 }
 
 let _schema: mongoose.Schema = new mongoose.Schema({
-    id: {
-        type: mongoose.Schema.Types.ObjectId,
-        required: true
-    },
+    _id: mongoose.Schema.Types.Number,
     uploaded: {
         type: mongoose.Schema.Types.Date,
         default: Date.now
@@ -37,26 +35,26 @@ let _schema: mongoose.Schema = new mongoose.Schema({
         required: true
     },
     directoryId: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: mongoose.Schema.Types.Number,
         ref: 'Directory'
     }
-});
+}, { _id: false });
 
 let _model: mongoose.Model<IFile> = mongoose.model<IFile>('File', _schema);
 
 export class File {
 
-    id: ObjectID;
+    _id: number;
     uploaded: Date;
     name: string;
     path: string;
     private: boolean;
     size: number;
-    directoryId: ObjectID;
+    directoryId: number;
 
     constructor(file?: IFile) {
         if (file) {
-            this.id = file.id;
+            this._id = file._id;
             this.uploaded = file.uploaded;
             this.name = file.name;
             this.path = file.path;
@@ -74,7 +72,6 @@ export class FileBuilder {
 
     constructor() {
         this.file = new File();
-        this.file.id = mongoose.Types.ObjectId();
         this.file.uploaded = new Date();
         return this;
     }
@@ -99,7 +96,7 @@ export class FileBuilder {
         return this;
     }
 
-    withDirectory(directoryId: ObjectID) {
+    withDirectory(directoryId: number) {
         this.file.directoryId = directoryId;
         return this;
     }
@@ -122,7 +119,7 @@ export class FileDAO {
         });
     }
 
-    static findById(id: ObjectID): Promise<File> {
+    static findById(id: number): Promise<File> {
         return new Promise<File>((resolve: Function, reject: Function) => {
             _model.findById(id)
                 .exec()
@@ -144,7 +141,7 @@ export class FileDAO {
         });
     }
 
-    static findByDirectoryId(directoryId: ObjectID): Promise<File[]> {
+    static findByDirectoryId(directoryId: number): Promise<File[]> {
         return new Promise<File[]>((resolve: Function, reject: Function) => {
             _model.find({
                 directoryId: directoryId
@@ -155,11 +152,9 @@ export class FileDAO {
         });
     }
 
-    static removeFile(id: ObjectID): Promise<any> {
+    static removeFile(id: number): Promise<any> {
         return new Promise<any>((resolve: Function, reject: Function) => {
-            _model.find({
-                id: id
-            })
+            _model.findById(id)
                 .remove()
                 .exec()
                 .then((value: any) => resolve())

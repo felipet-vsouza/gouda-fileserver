@@ -129,4 +129,13 @@ export namespace Utils {
     function buildAbsolutePath(path: string, dir: string): string {
         return path.concat((require('path').sep)).concat(dir);
     }
+
+    export namespace Validation {
+
+        export function isInteger(value: string): boolean {
+            let regex = /[+-]?[0-9]{1,10}/g;
+            return regex.test(value);
+        }
+
+    }
 }

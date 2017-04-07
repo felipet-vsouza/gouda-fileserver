@@ -24,6 +24,9 @@ export namespace DirectoryBiz {
 
     export async function getDirectoryAndFiles(directoryId: any): Promise<Directory> {
         return new Promise<Directory>((resolve: Function, reject: Function) => {
+            if (!Utils.Validation.isInteger(directoryId)) {
+                return reject('Invalid id: this request did not meet the expectations.');
+            }
             let dataSource: Promise<Directory> = directoryId ?
                 DirectoryDAO.findById(directoryId) :
                 DirectoryDAO.findRoot();
@@ -31,7 +34,7 @@ export namespace DirectoryBiz {
             dataSource
                 .then((directory: Directory) => {
                     directoryAndFiles.directory = directory;
-                    return FileDAO.findByDirectoryId(directory.id);
+                    return FileDAO.findByDirectoryId(directory._id);
                 })
                 .then((files: File[]) => {
                     directoryAndFiles.files = files;
@@ -77,10 +80,10 @@ export namespace DirectoryBiz {
 
     export function removeDirectory(id: any): Promise<Directory> {
         return new Promise<Directory>((resolve: Function, reject: Function) => {
-            if (!id) {
-                return reject('Invalid Directory: this request did not meet the expectations.');
+            if (!id || !Utils.Validation.isInteger(id)) {
+                return reject('Invalid id: this request did not meet the expectations.');
             }
-            DirectoryBiz.informationForDirectory(id)
+            DirectoryBiz.informationForDirectory(parseInt(id))
                 .then((directory: Directory) => {
                     DirectoryBusiness.removeDirectoryAndSubdirectories(directory);
                     DirectoryDAO.removeDirectoryAndSubdirectories(directory);
@@ -109,8 +112,8 @@ export namespace DirectoryBiz {
             let subdirectories: Directory[] = await DirectoryDAO.findSubdirectories(directory);
             for (let index = 0; index < subdirectories.length; index++) {
                 await Utils.FileSystem.clearDirectory(subdirectories[index].path);
-                let files: File[] = await FileDAO.findByDirectoryId(subdirectories[index].id);
-                files.forEach((file: File) => FileDAO.removeFile(file.id));
+                let files: File[] = await FileDAO.findByDirectoryId(subdirectories[index]._id);
+                files.forEach((file: File) => FileDAO.removeFile(file._id));
                 DirectoryBusiness.removeDirectoryAndSubdirectories(subdirectories[index]);
                 await Utils.FileSystem.removeDirectory(subdirectories[index].path);
             }
