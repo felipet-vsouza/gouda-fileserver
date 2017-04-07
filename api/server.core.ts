@@ -5,7 +5,6 @@ import { ServerResponse } from './server.api';
 import { Configuration } from './config/config.api';
 import { IncomingForm, File, Files, Fields } from 'formidable';
 import { join } from 'path';
-import { Utils } from './utils';
 import { Database } from './server.database';
 import { Response } from './response/response';
 
@@ -42,9 +41,6 @@ export namespace ServerCore {
             });
             router.post('/file', (request: express.Request, response: express.Response) => {
                 Resources.storeFile(request, response);
-            });
-            router.get('/list', (request: express.Request, response: express.Response) => {
-                Resources.listDirectory(request, response);
             });
             router.get('/file/listall', (request: express.Request, response: express.Response) => {
                 Resources.listAllFiles(request, response);
@@ -102,10 +98,9 @@ export namespace ServerCore {
             form.uploadDir = config.server.temporaryUploadPath;
             form.parse(request, (error: any, fields: Fields, files: Files) => {
                 if (error) {
-                    Utils.Logger.errorAndNotify(error);
-                    let message = 'This file could not be uploaded.';
                     Response.Utils.prepareResponse(response, Response.ErrorResponseBuilder
                         .get()
+                        .withMessage('This file could not be uploaded.')
                         .build());
                     return response.end();
                 }
@@ -127,31 +122,6 @@ export namespace ServerCore {
                         return response.end();
                     });
             });
-        }
-
-        export function listDirectory(request: express.Request, response: express.Response) {
-            if (!request || !request.query) {
-                Response.Utils.prepareResponse(response, Response.ErrorResponseBuilder
-                    .get()
-                    .build());
-                return response.end();
-            }
-            let directory = request.query.directory ? request.query.directory : '';
-            Utils.FileSystem.listFiles(config.server.hostPath, directory)
-                .then((files: string[]) => {
-                    Response.Utils.prepareResponse(response, Response.SuccessResponseBuilder.get()
-                        .withBody({
-                            files: files
-                        })
-                        .build());
-                    response.end();
-                })
-                .catch((error: NodeJS.ErrnoException) => {
-                    Response.Utils.prepareResponse(response, Response.ErrorResponseBuilder.get()
-                        .withMessage(`There was an error reading the following directory: ${directory}`)
-                        .build());
-                    response.end();
-                });
         }
 
         export function getDirectory(request: express.Request, response: express.Response) {

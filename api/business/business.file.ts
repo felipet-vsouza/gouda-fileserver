@@ -13,7 +13,7 @@ export namespace FileBiz {
             FileBiz.informationForFile(fileId)
                 .then((found: File) => {
                     file = found;
-                    return Utils.FileSystem.checkIfFileExists(file.path)
+                    return Utils.FileSystem.checkIfFileExists(file.path);
                 })
                 .then(() => resolve(file))
                 .catch(() => reject());
