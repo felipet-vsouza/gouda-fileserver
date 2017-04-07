@@ -1,5 +1,4 @@
 import * as fs from 'fs';
-import * as API from './server.api';
 import * as nodeNotifier from 'node-notifier';
 import { join } from 'path';
 

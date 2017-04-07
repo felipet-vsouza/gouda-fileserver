@@ -1,7 +1,6 @@
 import * as http from 'http';
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
-import { ServerResponse } from './server.api';
 import { Configuration } from './config/config.api';
 import { IncomingForm, File, Files, Fields } from 'formidable';
 import { join } from 'path';
