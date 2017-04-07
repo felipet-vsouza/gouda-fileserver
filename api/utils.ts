@@ -1,40 +1,9 @@
 import * as fs from 'fs';
 import * as API from './server.api';
-import * as http from 'http';
 import * as nodeNotifier from 'node-notifier';
 import { join } from 'path';
 
 export namespace Utils {
-
-    export namespace Server {
-
-        export function prepareDefaultSuccessResponse(response: http.ServerResponse) {
-            response.writeHead(200);
-        }
-
-        export function prepareDefaultFileResponse(response: http.ServerResponse, filename: string) {
-            response.writeHead(200, { 'Content-Disposition': `attachment; filename="${filename}"` });
-        }
-
-        export function prepareDefaultErrorResponse(response: http.ServerResponse, message?: string) {
-            response.writeHead(400, { 'Content-Type': 'text' });
-            let errorMessage = message ?
-                message :
-                'The url you are trying to access does not exist.';
-            response.write(errorMessage);
-        }
-
-        export function pipeReadStream(path: string, filename: string, response: http.ServerResponse) {
-            let absolutePath = buildAbsolutePath(path, filename);
-            fs.createReadStream(absolutePath)
-                .pipe(response);
-        }
-
-        export function prepareJSONResponse(response: http.ServerResponse) {
-            response.writeHead(200, { 'Content-Type': `application/JSON` });
-        }
-
-    }
 
     export namespace FileSystem {
 
