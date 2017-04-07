@@ -7,18 +7,9 @@ export namespace Utils {
 
     export namespace FileSystem {
 
-        export function checkIfFileExists(path: string, filename: string) {
-            let absolutePath = buildAbsolutePath(path, filename);
+        export function checkIfFileExists(path: string) {
             return new Promise((resolve: Function, reject: Function) => {
-                fs.access(absolutePath, fs.constants.F_OK, (error: NodeJS.ErrnoException) => {
-                    if (error) {
-                        Logger.errorAndNotify(`the server was unable to retrieve a requested resource (${absolutePath}): ${error}`);
-                        reject();
-                    } else {
-                        Logger.logAndNotify(`the server just resolved a requested resource (${absolutePath})`);
-                        resolve();
-                    }
-                });
+                fs.access(path, fs.constants.F_OK, (error: NodeJS.ErrnoException) => error ? reject() : resolve());
             });
         }
 

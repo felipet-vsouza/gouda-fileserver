@@ -37,7 +37,7 @@ export namespace ServerCore {
 
         export function configureRoutes(): express.Router {
             let router: express.Router = express.Router();
-            router.get('/file', (request: express.Request, response: express.Response) => {
+            router.get('/file/:fileId', (request: express.Request, response: express.Response) => {
                 Resources.serveFile(request, response);
             });
             router.post('/file', (request: express.Request, response: express.Response) => {
@@ -69,17 +69,17 @@ export namespace ServerCore {
     namespace Resources {
 
         export function serveFile(request: express.Request, response: express.Response) {
-            if (!request || !request.query || !request.query.filename) {
+            if (!request || !request.params) {
                 Response.Utils.prepareResponse(response, Response.ErrorResponseBuilder
                     .get()
                     .build());
                 return response.end();
             }
-            let filename = request.query.filename;
-            Utils.FileSystem.checkIfFileExists(config.server.hostPath, filename)
-                .then(() => {
-                    Response.Utils.prepareFileResponse(response, filename);
-                    Response.Utils.pipeReadStream(config.server.hostPath, filename, response);
+            let fileId = request.params.fileId;
+            Business.FileBiz.getFile(fileId)
+                .then((file: any) => {
+                    Response.Utils.prepareFileResponse(file.name, file.size, response);
+                    Response.Utils.pipeReadStream(file.path, response);
                 })
                 .catch(() => {
                     Response.Utils.prepareResponse(response, Response.ErrorResponseBuilder
@@ -102,7 +102,7 @@ export namespace ServerCore {
             form.uploadDir = config.server.temporaryUploadPath;
             form.parse(request, (error: any, fields: Fields, files: Files) => {
                 if (error) {
-                    Utils.Logger.logAndNotify(error);
+                    Utils.Logger.errorAndNotify(error);
                     let message = 'This file could not be uploaded.';
                     Response.Utils.prepareResponse(response, Response.ErrorResponseBuilder
                         .get()

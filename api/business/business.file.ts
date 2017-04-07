@@ -7,6 +7,19 @@ import * as formidable from 'formidable';
 
 export namespace FileBiz {
 
+    export function getFile(fileId: any): Promise<File> {
+        let file: File;
+        return new Promise<File>((resolve: Function, reject: Function) => {
+            FileBiz.informationForFile(fileId)
+                .then((found: File) => {
+                    file = found;
+                    return Utils.FileSystem.checkIfFileExists(file.path)
+                })
+                .then(() => resolve(file))
+                .catch(() => reject());
+        });
+    }
+
     export function storeFile(file: formidable.File, fileData: any, uploadDirectory: string): Promise<File> {
         return new Promise<File>((resolve: Function, reject: Function) => {
             if (!FileBusiness.typeCheck(fileData)) {
@@ -38,7 +51,7 @@ export namespace FileBiz {
         });
     }
 
-    export function informationForFile(id: ObjectID): Promise<File> {
+    export function informationForFile(id: any): Promise<File> {
         return FileDTO.findById(id);
     }
 

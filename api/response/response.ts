@@ -78,18 +78,22 @@ export namespace Response {
 
     export namespace Utils {
 
-        export function prepareFileResponse(response: http.ServerResponse, filename: string) {
-            response.writeHead(200, { 'Content-Disposition': `attachment; filename="${filename}"` });
-        }
-
         export function prepareResponse(response: http.ServerResponse, responseData: Response) {
             response.writeHead(responseData.status, { 'Content-Type': 'application/json' });
             response.write(JSON.stringify(responseData));
         }
 
-        export function pipeReadStream(path: string, filename: string, response: http.ServerResponse) {
-            let absolutePath = join(path, filename);
-            fs.createReadStream(absolutePath)
+        export function prepareFileResponse(filename: string, length: number, response: http.ServerResponse) {
+            response.writeHead(200,
+                {
+                    'Content-Disposition': `attachment; filename="${filename}"`,
+                    'Content-Length': `${length}`
+                }
+            );
+        }
+
+        export function pipeReadStream(filepath: string, response: http.ServerResponse) {
+            fs.createReadStream(filepath)
                 .pipe(response);
         }
 
