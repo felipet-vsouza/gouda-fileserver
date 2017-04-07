@@ -35,6 +35,10 @@ export namespace DirectoryBiz {
                 })
                 .then((files: File[]) => {
                     directoryAndFiles.files = files;
+                    return DirectoryDTO.findSubdirectories(directoryAndFiles.directory.id);
+                })
+                .then((subdirectories: Directory[]) => {
+                    directoryAndFiles.subdirectories = subdirectories;
                     resolve(directoryAndFiles);
                 })
                 .catch((reason: any) => {

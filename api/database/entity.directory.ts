@@ -138,7 +138,7 @@ export class DirectoryDTO {
     static findSubdirectories(directory: Directory): Promise<Directory[]> {
         return new Promise<Directory[]>((resolve: Function, reject: Function) => {
             _model.find({
-                superdirectoryId: directory.superdirectoryId
+                superdirectoryId: directory.id
             })
                 .exec()
                 .then((files: IDirectory[]) => {
