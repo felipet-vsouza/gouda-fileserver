@@ -1,5 +1,5 @@
-import { Directory, DirectoryDTO, DirectoryBuilder } from './../database/entity.directory';
-import { File, FileDTO } from './../database/entity.file';
+import { Directory, DirectoryDAO, DirectoryBuilder } from './../database/entity.directory';
+import { File, FileDAO } from './../database/entity.file';
 import { Utils } from './../utils';
 import { ObjectID } from 'mongodb';
 import { join } from 'path';
@@ -14,7 +14,7 @@ export namespace DirectoryBiz {
         return new Promise<any>((resolve: Function, reject: Function) => {
             let directories: Directory[] = require(config.database.seed.module)().Directory;
             directories.forEach((directory: Directory) => {
-                DirectoryDTO.create(directory)
+                DirectoryDAO.create(directory)
                     .then((created: Directory) => Utils.Logger.logAndNotify(`seeded Directory ${created.path}`, 'mongodb-seed'))
                     .catch((reason: any) => Utils.Logger.errorAndNotify(`problem while seeding Directory: ${reason}`, 'mongodb-seed') && reject());
             });
@@ -25,17 +25,17 @@ export namespace DirectoryBiz {
     export async function getDirectoryAndFiles(directoryId: any): Promise<Directory> {
         return new Promise<Directory>((resolve: Function, reject: Function) => {
             let dataSource: Promise<Directory> = directoryId ?
-                DirectoryDTO.findById(directoryId) :
-                DirectoryDTO.findRoot();
+                DirectoryDAO.findById(directoryId) :
+                DirectoryDAO.findRoot();
             let directoryAndFiles: any = {};
             dataSource
                 .then((directory: Directory) => {
                     directoryAndFiles.directory = directory;
-                    return FileDTO.findByDirectoryId(directory.id);
+                    return FileDAO.findByDirectoryId(directory.id);
                 })
                 .then((files: File[]) => {
                     directoryAndFiles.files = files;
-                    return DirectoryDTO.findSubdirectories(directoryAndFiles.directory.id);
+                    return DirectoryDAO.findSubdirectories(directoryAndFiles.directory.id);
                 })
                 .then((subdirectories: Directory[]) => {
                     directoryAndFiles.subdirectories = subdirectories;
@@ -53,7 +53,7 @@ export namespace DirectoryBiz {
                 reject('Invalid Directory: the body of this request did not meet the expectations.');
             }
             let definetlyDirectory: Directory = directory;
-            return DirectoryDTO.findById(definetlyDirectory.superdirectoryId)
+            return DirectoryDAO.findById(definetlyDirectory.superdirectoryId)
                 .then((superdirectory: Directory) => {
                     if (!superdirectory) {
                         reject('The specified superdirectory could not be found.');
@@ -66,7 +66,7 @@ export namespace DirectoryBiz {
                         .withPrivate(definetlyDirectory.private)
                         .withSuperdirectory(definetlyDirectory.superdirectoryId)
                         .build();
-                    return DirectoryDTO.create(directoryToCreate);
+                    return DirectoryDAO.create(directoryToCreate);
                 })
                 .then((created: Directory) => resolve(created))
                 .catch((reason: any) => {
@@ -82,17 +82,17 @@ export namespace DirectoryBiz {
             }
             let definetlyDirectory: Directory = directory;
             DirectoryBusiness.removeDirectoryAndSubdirectories(definetlyDirectory);
-            DirectoryDTO.removeDirectoryAndSubdirectories(definetlyDirectory);
+            DirectoryDAO.removeDirectoryAndSubdirectories(definetlyDirectory);
             resolve(definetlyDirectory);
         });
     }
 
     export function informationForDirectory(id: ObjectID): Promise<Directory> {
-        return DirectoryDTO.findById(id);
+        return DirectoryDAO.findById(id);
     }
 
     export function findAllDirectories(): Promise<any[]> {
-        return DirectoryDTO.findAll();
+        return DirectoryDAO.findAll();
     }
 
     class DirectoryBusiness {
@@ -103,7 +103,7 @@ export namespace DirectoryBiz {
         }
 
         static async removeDirectoryAndSubdirectories(directory: Directory) {
-            let subdirectories: Directory[] = await DirectoryDTO.findSubdirectories(directory);
+            let subdirectories: Directory[] = await DirectoryDAO.findSubdirectories(directory);
             for (let index = 0; index < subdirectories.length; index++) {
                 await Utils.FileSystem.clearDirectory(subdirectories[index].path);
                 DirectoryBusiness.removeDirectoryAndSubdirectories(subdirectories[index]);

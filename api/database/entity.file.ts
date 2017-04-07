@@ -110,7 +110,7 @@ export class FileBuilder {
 
 }
 
-export class FileDTO {
+export class FileDAO {
 
     static create(file: File): Promise<File> {
         return new Promise<File>((resolve: Function, reject: Function) => {

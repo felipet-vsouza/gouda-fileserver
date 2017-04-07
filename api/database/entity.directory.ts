@@ -97,7 +97,7 @@ export class DirectoryBuilder {
 
 }
 
-export class DirectoryDTO {
+export class DirectoryDAO {
 
     static create(directory: Directory): Promise<Directory> {
         return new Promise<Directory>((resolve: Function, reject: Function) => {
