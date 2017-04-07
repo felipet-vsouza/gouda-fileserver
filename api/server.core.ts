@@ -42,6 +42,9 @@ export namespace ServerCore {
             router.post('/file', (request: express.Request, response: express.Response) => {
                 Resources.storeFile(request, response);
             });
+            router.delete('/file/:fileId', (request: express.Request, response: express.Response) => {
+                Resources.deleteFile(request, response);
+            });
             router.get('/file/listall', (request: express.Request, response: express.Response) => {
                 Resources.listAllFiles(request, response);
             });
@@ -51,7 +54,7 @@ export namespace ServerCore {
             router.post('/directory', (request: express.Request, response: express.Response) => {
                 Resources.createDirectory(request, response);
             });
-            router.delete('/directory', (request: express.Request, response: express.Response) => {
+            router.delete('/directory/:directoryId', (request: express.Request, response: express.Response) => {
                 Resources.deleteDirectory(request, response);
             });
             router.get('/directory/listall', (request: express.Request, response: express.Response) => {
@@ -124,6 +127,31 @@ export namespace ServerCore {
             });
         }
 
+        export function deleteFile(request: express.Request, response: express.Response) {
+            if (!request || !request.params) {
+                Response.Utils.prepareResponse(response, Response.ErrorResponseBuilder
+                    .get()
+                    .build());
+                return response.end();
+            }
+            let fileId = request.params.fileId;
+            Business.DirectoryBiz.removeDirectory(fileId)
+                .then((file: any) => {
+                    Response.Utils.prepareResponse(response, Response.SuccessResponseBuilder.get()
+                        .withBody({
+                            removedFile: file
+                        })
+                        .build());
+                    response.end();
+                })
+                .catch((error: NodeJS.ErrnoException) => {
+                    Response.Utils.prepareResponse(response, Response.ErrorResponseBuilder.get()
+                        .withMessage(`There was an error removing this file.`)
+                        .build());
+                    response.end();
+                });
+        }
+
         export function getDirectory(request: express.Request, response: express.Response) {
             if (!request || !request.params) {
                 Response.Utils.prepareResponse(response, Response.ErrorResponseBuilder
@@ -173,14 +201,14 @@ export namespace ServerCore {
         }
 
         export function deleteDirectory(request: express.Request, response: express.Response) {
-            if (!request || !request.body || !request.body.directory) {
+            if (!request || !request.params) {
                 Response.Utils.prepareResponse(response, Response.ErrorResponseBuilder
                     .get()
                     .build());
                 return response.end();
             }
-            let directory = request.body.directory;
-            Business.DirectoryBiz.removeDirectory(directory)
+            let directoryId = request.params.directoryId;
+            Business.DirectoryBiz.removeDirectory(directoryId)
                 .then((directory: any) => {
                     Response.Utils.prepareResponse(response, Response.SuccessResponseBuilder.get()
                         .withBody({
@@ -191,7 +219,7 @@ export namespace ServerCore {
                 })
                 .catch((error: NodeJS.ErrnoException) => {
                     Response.Utils.prepareResponse(response, Response.ErrorResponseBuilder.get()
-                        .withMessage(`There was an error removing the following directory: ${directory} - ${error}`)
+                        .withMessage(`There was an error removing this directory.`)
                         .build());
                     response.end();
                 });

@@ -60,6 +60,12 @@ export namespace Utils {
             });
         }
 
+        export function removeFile(path: string) {
+            if (fs.lstatSync(path).isFile()) {
+                fs.unlinkSync(path);
+            }
+        }
+
         export function clearDirectory(path: string): Promise<any> {
             return new Promise((resolve: Function, reject: Function) => {
                 fs.readdir(path, (error: NodeJS.ErrnoException, files: string[]) => {

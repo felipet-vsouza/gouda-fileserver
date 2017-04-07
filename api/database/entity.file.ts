@@ -155,4 +155,16 @@ export class FileDAO {
         });
     }
 
+    static removeFile(id: ObjectID): Promise<any> {
+        return new Promise<any>((resolve: Function, reject: Function) => {
+            _model.find({
+                id: id
+            })
+                .remove()
+                .exec()
+                .then((value: any) => resolve())
+                .catch((reason: any) => reject(reason));
+        });
+    }
+
 }

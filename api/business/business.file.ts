@@ -51,6 +51,21 @@ export namespace FileBiz {
         });
     }
 
+    export function removeFile(id: any): Promise<File> {
+        return new Promise<File>((resolve: Function, reject: Function) => {
+            if (!id) {
+                return reject('Invalid File: this request did not meet the expectations.');
+            }
+            FileBiz.informationForFile(id)
+                .then((file: File) => {
+                    Utils.FileSystem.removeFile(file.path);
+                    FileDAO.removeFile(file.id);
+                    resolve(file);
+                })
+                .catch((cause: any) => reject(cause));
+        });
+    }
+
     export function informationForFile(id: any): Promise<File> {
         return FileDAO.findById(id);
     }

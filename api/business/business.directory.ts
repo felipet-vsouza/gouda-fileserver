@@ -75,19 +75,22 @@ export namespace DirectoryBiz {
         });
     }
 
-    export function removeDirectory(directory: any): Promise<Directory> {
+    export function removeDirectory(id: any): Promise<Directory> {
         return new Promise<Directory>((resolve: Function, reject: Function) => {
-            if (!DirectoryBusiness.typeCheck(directory)) {
-                reject('Invalid Directory: the body of this request did not meet the expectations.');
+            if (!id) {
+                return reject('Invalid Directory: this request did not meet the expectations.');
             }
-            let definetlyDirectory: Directory = directory;
-            DirectoryBusiness.removeDirectoryAndSubdirectories(definetlyDirectory);
-            DirectoryDAO.removeDirectoryAndSubdirectories(definetlyDirectory);
-            resolve(definetlyDirectory);
+            DirectoryBiz.informationForDirectory(id)
+                .then((directory: Directory) => {
+                    DirectoryBusiness.removeDirectoryAndSubdirectories(directory);
+                    DirectoryDAO.removeDirectoryAndSubdirectories(directory);
+                    resolve(directory);
+                })
+                .catch((cause: any) => reject(cause));
         });
     }
 
-    export function informationForDirectory(id: ObjectID): Promise<Directory> {
+    export function informationForDirectory(id: any): Promise<Directory> {
         return DirectoryDAO.findById(id);
     }
 
