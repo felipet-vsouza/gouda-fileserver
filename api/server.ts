@@ -1,6 +1,6 @@
-import { ServerCore } from './server.core';
+import { Routes } from './routes/routes';
 import { Configuration } from './config/config.api';
-import { Database } from './server.database';
+import { Database } from './database/database';
 import { Utils } from './utils';
 import { Server } from 'http';
 
@@ -8,7 +8,7 @@ import { Server } from 'http';
 
     let serverConfig: Configuration.IConfiguration = require('./config/config.json');
 
-    ServerCore.createServer()
+    Routes.createServer()
         .then((serverInstance: Server) => {
             serverInstance.listen(serverConfig.server.ports.fileserver);
             Utils.Notifier.notifyInfo('Hurray, Gouda started successfully!');
