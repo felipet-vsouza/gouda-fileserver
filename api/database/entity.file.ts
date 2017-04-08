@@ -6,7 +6,7 @@ import * as autoIncrement from 'mongoose-sequence';
 let config: Configuration.IConfiguration = require('./../config/config.json');
 
 interface IFile extends mongoose.Document {
-    _id: number;
+    fileId: number;
     uploaded: Date;
     name: string;
     path: string;
@@ -16,7 +16,6 @@ interface IFile extends mongoose.Document {
 }
 
 let _schema: mongoose.Schema = new mongoose.Schema({
-    _id: mongoose.Schema.Types.Number,
     uploaded: {
         type: mongoose.Schema.Types.Date,
         default: Date.now
@@ -38,13 +37,15 @@ let _schema: mongoose.Schema = new mongoose.Schema({
         type: mongoose.Schema.Types.Number,
         ref: 'Directory'
     }
-}, { _id: false });
+});
+
+_schema.plugin(autoIncrement, { inc_field: 'fileId' });
 
 let _model: mongoose.Model<IFile> = mongoose.model<IFile>('File', _schema);
 
 export class File {
 
-    _id: number;
+    fileId: number;
     uploaded: Date;
     name: string;
     path: string;
@@ -54,7 +55,7 @@ export class File {
 
     constructor(file?: IFile) {
         if (file) {
-            this._id = file._id;
+            this.fileId = file.fileId;
             this.uploaded = file.uploaded;
             this.name = file.name;
             this.path = file.path;
@@ -121,10 +122,12 @@ export class FileDAO {
 
     static findById(id: number): Promise<File> {
         return new Promise<File>((resolve: Function, reject: Function) => {
-            _model.findById(id)
+            _model.find({
+                fileId: id
+            })
                 .exec()
-                .then((file: IFile) => {
-                    resolve(new File(file));
+                .then((files: IFile[]) => {
+                    resolve(files.length > 0 ? new File(files[0]) : undefined);
                 })
                 .catch((reason: any) => reject(reason));
         });
@@ -154,7 +157,9 @@ export class FileDAO {
 
     static removeFile(id: number): Promise<any> {
         return new Promise<any>((resolve: Function, reject: Function) => {
-            _model.findById(id)
+            _model.find({
+                fileId: id
+            })
                 .remove()
                 .exec()
                 .then((value: any) => resolve())

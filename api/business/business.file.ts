@@ -13,9 +13,9 @@ export namespace FileBiz {
             if (!fileId || !Utils.Validation.isInteger(fileId)) {
                 return reject('Invalid id: this request did not meet the expectations.');
             }
-            FileBiz.informationForFile(parseInt(fileId))
+            FileDAO.findById(parseInt(fileId))
                 .then((found: File) => {
-                    file = found;
+                    file = found ? found : reject(`No file with id ${fileId} could be found`);
                     return Utils.FileSystem.checkIfFileExists(file.path);
                 })
                 .then(() => resolve(file))
@@ -39,7 +39,7 @@ export namespace FileBiz {
                     let fileToStore: File = new FileBuilder()
                         .withName(file.name)
                         .withPath(destinationPath)
-                        .withPrivate(fileData.private ? fileData.private : false)
+                        .withPrivate(definetlyFile.private ? definetlyFile.private : false)
                         .withSize(file.size)
                         .withDirectory(directory._id)
                         .build();
@@ -54,23 +54,20 @@ export namespace FileBiz {
         });
     }
 
-    export function removeFile(id: any): Promise<File> {
+    export function removeFile(fileId: any): Promise<File> {
         return new Promise<File>((resolve: Function, reject: Function) => {
-            if (!id || !Utils.Validation.isInteger(id)) {
+            if (!fileId || !Utils.Validation.isInteger(fileId)) {
                 return reject('Invalid id: this request did not meet the expectations.');
             }
-            FileBiz.informationForFile(parseInt(id))
-                .then((file: File) => {
+            FileDAO.findById(parseInt(fileId))
+                .then((found: File) => {
+                    let file = found ? found : reject(`No file with id ${fileId} could be found.`);
                     Utils.FileSystem.removeFile(file.path);
-                    FileDAO.removeFile(file._id);
+                    FileDAO.removeFile(file.fileId);
                     resolve(file);
                 })
                 .catch((cause: any) => reject(cause));
         });
-    }
-
-    export function informationForFile(id: any): Promise<File> {
-        return FileDAO.findById(id);
     }
 
     export function findAllFiles(): Promise<any[]> {
@@ -79,8 +76,7 @@ export namespace FileBiz {
 
     class FileBusiness {
         static typeCheck(object: any): boolean {
-            return 'name' in object &&
-                'directoryId' in object;
+            return 'directoryId' in object;
         }
     }
 

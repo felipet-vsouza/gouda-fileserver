@@ -1,16 +1,15 @@
 import * as mongo from 'mongodb';
 import { Utils } from './../utils';
+import { Configuration } from './../config/config.api';
 
-let id = new mongo.ObjectID();
-Utils.Logger.logAndNotify(`root directory created with id ${id}`, 'mongodb-seed');
+let config: Configuration.IConfiguration = require('./../config/config.json');
 
 module.exports = function () {
     return {
         Directory: [
             {
-                id: id,
                 name: 'root',
-                path: '/home/felps/Documents/gouda/host/root',
+                path: config.server.hostPath,
                 private: false
             }
         ]

@@ -24,21 +24,18 @@ export namespace DirectoryBiz {
 
     export async function getDirectoryAndFiles(directoryId: any): Promise<Directory> {
         return new Promise<Directory>((resolve: Function, reject: Function) => {
-            if (!Utils.Validation.isInteger(directoryId)) {
-                return reject('Invalid id: this request did not meet the expectations.');
-            }
             let dataSource: Promise<Directory> = directoryId ?
                 DirectoryDAO.findById(directoryId) :
                 DirectoryDAO.findRoot();
             let directoryAndFiles: any = {};
             dataSource
                 .then((directory: Directory) => {
-                    directoryAndFiles.directory = directory;
+                    directoryAndFiles.directory = directory ? directory : reject(`No directory with id ${directoryId} could be found.`);
                     return FileDAO.findByDirectoryId(directory._id);
                 })
                 .then((files: File[]) => {
                     directoryAndFiles.files = files;
-                    return DirectoryDAO.findSubdirectories(directoryAndFiles.directory.id);
+                    return DirectoryDAO.findSubdirectories(directoryAndFiles.directory);
                 })
                 .then((subdirectories: Directory[]) => {
                     directoryAndFiles.subdirectories = subdirectories;
@@ -113,7 +110,7 @@ export namespace DirectoryBiz {
             for (let index = 0; index < subdirectories.length; index++) {
                 await Utils.FileSystem.clearDirectory(subdirectories[index].path);
                 let files: File[] = await FileDAO.findByDirectoryId(subdirectories[index]._id);
-                files.forEach((file: File) => FileDAO.removeFile(file._id));
+                files.forEach((file: File) => FileDAO.removeFile(file.fileId));
                 DirectoryBusiness.removeDirectoryAndSubdirectories(subdirectories[index]);
                 await Utils.FileSystem.removeDirectory(subdirectories[index].path);
             }

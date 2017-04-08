@@ -113,7 +113,7 @@ export class DirectoryDAO {
             _model.findById(id)
                 .exec()
                 .then((directory: IDirectory) => {
-                    resolve(new Directory(directory));
+                    resolve(directory ? new Directory(directory) : undefined);
                 })
                 .catch((reason: any) => reject(reason));
         });

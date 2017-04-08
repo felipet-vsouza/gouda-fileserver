@@ -1,7 +1,7 @@
 {
     "server": {
-        "hostPath": "/home/felps/Documents/gouda/host",
-        "temporaryUploadPath": "/home/felps/Documents/gouda/temp/",
+        "hostPath": "C:\\gouda\\host",
+        "temporaryUploadPath": "C:\\gouda\\temp",
         "ports": {
             "fileserver": 8080
         }
@@ -12,7 +12,7 @@
         "port": 27017,
         "clearDatabase": true,
         "seed": {
-            "module": "/home/felps/Documents/github/gouda-fileserver/dist/config/mongo-seed"
+            "module": "C:\\github\\gouda-fileserver\\dist\\config\\mongo-seed"
         }
     }
 }
