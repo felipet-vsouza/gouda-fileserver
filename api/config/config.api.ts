@@ -3,6 +3,7 @@ export namespace Configuration {
     export interface IConfiguration {
         server?: IServerConfiguration;
         database?: IDatabaseConfiguration;
+        security?: ISecurityConfiguration;
     }
 
     export interface IServerConfiguration {
@@ -25,6 +26,11 @@ export namespace Configuration {
 
     export interface IDatabaseSeed {
         module: string;
+    }
+
+    export interface ISecurityConfiguration {
+        key: string;
+        adminPassword: string;
     }
 
 }

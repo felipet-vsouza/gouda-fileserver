@@ -12,7 +12,7 @@ export namespace DirectoryBiz {
 
     export function seedDatabase(): Promise<any> {
         return new Promise<any>((resolve: Function, reject: Function) => {
-            let directories: Directory[] = require(config.database.seed.module)().Directory;
+            let directories: Directory[] = require(config.database.seed.module).Directory;
             directories.forEach((directory: Directory) => {
                 DirectoryDAO.create(directory)
                     .then((created: Directory) => Utils.Logger.logAndNotify(`seeded Directory ${created.path}`, 'mongodb-seed'))
