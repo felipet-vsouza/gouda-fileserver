@@ -1,8 +1,8 @@
 import { File, FileDAO, FileBuilder } from './../database/entity.file';
 import { Directory, DirectoryDAO } from './../database/entity.directory';
-import { Utils } from './../utils';
 import { ObjectID } from 'mongodb';
 import { join } from 'path';
+import * as Utils from './../utils/utils';
 import * as formidable from 'formidable';
 
 export namespace FileBiz {

@@ -1,9 +1,9 @@
 import { Directory, DirectoryDAO, DirectoryBuilder } from './../database/entity.directory';
 import { File, FileDAO } from './../database/entity.file';
-import { Utils } from './../utils';
 import { ObjectID } from 'mongodb';
 import { join } from 'path';
 import { Configuration } from './../config/config.api';
+import * as Utils from './../utils/utils';
 import * as formidable from 'formidable';
 
 let config = require('./../config/config.json') as Configuration.IConfiguration;

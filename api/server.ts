@@ -1,8 +1,8 @@
 import { Routes } from './routes/routes';
 import { Configuration } from './config/config.api';
 import { Database } from './database/database';
-import { Utils } from './utils';
 import { Server } from 'http';
+import * as Utils from './utils/utils';
 
 (function startServer() {
 
