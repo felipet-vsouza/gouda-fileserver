@@ -24,7 +24,8 @@ let _schema: mongoose.Schema = new mongoose.Schema({
     },
     username: {
         type: mongoose.Schema.Types.String,
-        required: true
+        required: true,
+        unique: true
     },
     password: {
         type: mongoose.Schema.Types.String,
@@ -117,6 +118,23 @@ export class UserDAO {
                 .exec()
                 .then((users: IUser[]) => {
                     resolve(users.map((user: IUser) => new User(user)));
+                })
+                .catch((reason: any) => reject(reason));
+        });
+    }
+
+    static findByUsername(username: string): Promise<User> {
+        return new Promise<User>((resolve: Function, reject: Function) => {
+            _model.find({
+                username: username
+            })
+                .exec()
+                .then((users: IUser[]) => {
+                    users.length > 0 ?
+                        users.length > 1 ?
+                            reject('There is an inconsistency in the database. Speak to the admin.') :
+                            resolve(new User(users[0])) :
+                        reject(`No user with username ${username} could be found.`);
                 })
                 .catch((reason: any) => reject(reason));
         });

@@ -24,6 +24,9 @@ export namespace DirectoryBiz {
 
     export async function getDirectoryAndFiles(directoryId: any): Promise<Directory> {
         return new Promise<Directory>((resolve: Function, reject: Function) => {
+            if (directoryId && !Utils.Validation.isInteger(directoryId)) {
+                reject(`The value ${directoryId} is not valid as an id.`);
+            }
             let dataSource: Promise<Directory> = directoryId ?
                 DirectoryDAO.findById(directoryId) :
                 DirectoryDAO.findRoot();
@@ -99,6 +102,7 @@ export namespace DirectoryBiz {
     }
 
     class DirectoryBusiness {
+
         static typeCheck(object: any): boolean {
             return 'name' in object &&
                 'superdirectoryId' in object &&
@@ -115,6 +119,7 @@ export namespace DirectoryBiz {
                 await Utils.FileSystem.removeDirectory(subdirectories[index].path);
             }
         }
+
     }
 
 }

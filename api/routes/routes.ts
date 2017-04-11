@@ -8,6 +8,7 @@ import * as Business from './../business/business';
 
 import { FileRoutes } from './routes.file';
 import { DirectoryRoutes } from './routes.directory';
+import { UserRoutes } from './routes.user';
 
 export namespace Routes {
 
@@ -50,6 +51,7 @@ export namespace Routes {
         let router: express.Router = express.Router();
         FileRoutes.configureRoutes(router);
         DirectoryRoutes.configureRoutes(router);
+        UserRoutes.configureRoutes(router);
         return router;
     }
 
