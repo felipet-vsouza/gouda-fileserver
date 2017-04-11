@@ -93,7 +93,7 @@ export namespace UserRoutes {
         }
 
         export function login(request: express.Request, response: express.Response) {
-            if (!request || !request.body || !request.body.user) {
+            if (!request || !request.body || !request.body.login) {
                 Response.Utils.prepareResponse(response, Response.ErrorResponseBuilder
                     .get()
                     .build());

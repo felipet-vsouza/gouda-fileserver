@@ -62,6 +62,7 @@ export class UserBuilder {
     private user: User;
 
     constructor() {
+        this.user = new User();
         this.user.created = new Date();
         return this;
     }

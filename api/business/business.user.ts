@@ -40,7 +40,7 @@ export namespace UserBiz {
             let user: User = new UserBuilder()
                 .withName(userData.name)
                 .withUsername(userData.username)
-                .withPassword(HmacSHA256(userData.password, config.security.key))
+                .withPassword(HmacSHA256(userData.password, config.security.key).toString())
                 .build();
             UserDAO.create(user)
                 .then((created: User) => resolve(created))
@@ -69,7 +69,7 @@ export namespace UserBiz {
             }
             UserDAO.findByUsername(loginData.username)
                 .then((user: User) => {
-                    user.password === HmacSHA256(loginData.password, config.security.key) ?
+                    user.password === HmacSHA256(loginData.password, config.security.key).toString() ?
                         resolve(user) :
                         reject(loginErrorMessage);
                 })
