@@ -25,7 +25,7 @@ export namespace DirectoryBiz {
     export async function getDirectoryAndFiles(directoryId: any): Promise<Directory> {
         return new Promise<Directory>((resolve: Function, reject: Function) => {
             if (directoryId && !Utils.Validation.isInteger(directoryId)) {
-                reject(`The value ${directoryId} is not valid as an id.`);
+                return reject(`The value ${directoryId} is not valid as an id.`);
             }
             let dataSource: Promise<Directory> = directoryId ?
                 DirectoryDAO.findById(directoryId) :
@@ -33,7 +33,10 @@ export namespace DirectoryBiz {
             let directoryAndFiles: any = {};
             dataSource
                 .then((directory: Directory) => {
-                    directoryAndFiles.directory = directory ? directory : reject(`No directory with id ${directoryId} could be found.`);
+                    if (!directory) {
+                        return reject(`No directory with id ${directoryId} could be found.`);
+                    }
+                    directoryAndFiles.directory = directory;
                     return FileDAO.findByDirectoryId(directory._id);
                 })
                 .then((files: File[]) => {
@@ -53,13 +56,13 @@ export namespace DirectoryBiz {
     export function createDirectory(directory: any): Promise<string | Directory> {
         return new Promise<string | Directory>((resolve: Function, reject: Function) => {
             if (!DirectoryBusiness.typeCheck(directory)) {
-                reject('Invalid Directory: the body of this request did not meet the expectations.');
+                return reject('Invalid Directory: the body of this request did not meet the expectations.');
             }
             let definetlyDirectory: Directory = directory;
             return DirectoryDAO.findById(definetlyDirectory.superdirectoryId)
                 .then((superdirectory: Directory) => {
                     if (!superdirectory) {
-                        reject('The specified superdirectory could not be found.');
+                        return reject('The specified superdirectory could not be found.');
                     }
                     let definetlyPath = join(superdirectory.path, definetlyDirectory.name);
                     Utils.FileSystem.createDirectory(definetlyPath);
@@ -82,6 +85,9 @@ export namespace DirectoryBiz {
         return new Promise<Directory>((resolve: Function, reject: Function) => {
             if (!id || !Utils.Validation.isInteger(id)) {
                 return reject('Invalid id: this request did not meet the expectations.');
+            }
+            if (parseInt(id) === 1) {
+                return reject('The root directory cannot be deleted.');
             }
             DirectoryBiz.informationForDirectory(parseInt(id))
                 .then((directory: Directory) => {

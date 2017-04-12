@@ -15,7 +15,10 @@ export namespace FileBiz {
             }
             FileDAO.findById(parseInt(fileId))
                 .then((found: File) => {
-                    file = found ? found : reject(`No file with id ${fileId} could be found`);
+                    if (!found) {
+                        return reject(`No file with id ${fileId} could be found`);
+                    }
+                    file = found;
                     return Utils.FileSystem.checkIfFileExists(file.path);
                 })
                 .then(() => resolve(file))
@@ -26,7 +29,7 @@ export namespace FileBiz {
     export function storeFile(file: formidable.File, fileData: any, uploadDirectory: string): Promise<File> {
         return new Promise<File>((resolve: Function, reject: Function) => {
             if (!FileBusiness.typeCheck(fileData)) {
-                reject('Invalid File: the body of this request did not meet the expectations.');
+                return reject('Invalid File: the body of this request did not meet the expectations.');
             }
             let definetlyFile: File = fileData;
             DirectoryDAO.findById(definetlyFile.directoryId)
@@ -35,6 +38,7 @@ export namespace FileBiz {
                     let fsError = await Utils.FileSystem.copyAndRemoveFile(file.path, destinationPath);
                     if (fsError) {
                         reject(fsError);
+                        return;
                     }
                     let fileToStore: File = new FileBuilder()
                         .withName(file.name)
@@ -54,14 +58,17 @@ export namespace FileBiz {
         });
     }
 
-    export function removeFile(fileId: any): Promise<File> {
+    export function deleteFile(fileId: any): Promise<File> {
         return new Promise<File>((resolve: Function, reject: Function) => {
             if (!fileId || !Utils.Validation.isInteger(fileId)) {
                 return reject('Invalid id: this request did not meet the expectations.');
             }
             FileDAO.findById(parseInt(fileId))
                 .then((found: File) => {
-                    let file = found ? found : reject(`No file with id ${fileId} could be found.`);
+                    if (!found) {
+                        reject(`No file with id ${fileId} could be found.`);
+                    }
+                    let file = found;
                     Utils.FileSystem.removeFile(file.path);
                     FileDAO.removeFile(file.fileId);
                     resolve(file);

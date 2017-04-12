@@ -94,7 +94,7 @@ namespace Resources {
             return response.end();
         }
         let fileId = request.params.fileId;
-        Business.DirectoryBiz.removeDirectory(fileId)
+        Business.FileBiz.deleteFile(fileId)
             .then((file: any) => {
                 Response.Utils.prepareResponse(response, Response.SuccessResponseBuilder.get()
                     .withBody({

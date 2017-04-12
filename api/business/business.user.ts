@@ -22,7 +22,7 @@ export namespace UserBiz {
     export function getUserInformation(userId: any): Promise<User> {
         return new Promise<User>((resolve: Function, reject: Function) => {
             if (!Utils.Validation.isInteger(userId)) {
-                reject(`The value ${userId} is not valid as an id.`);
+                return reject(`The value ${userId} is not valid as an id.`);
             }
             UserDAO.findById(userId)
                 .then((user: User) => {
@@ -35,7 +35,7 @@ export namespace UserBiz {
     export function createUser(userData: any): Promise<User> {
         return new Promise<User>((resolve: Function, reject: Function) => {
             if (!UserBusiness.typeCheck(userData)) {
-                reject('Invalid User: the body of this request did not meet the expectations.');
+                return reject('Invalid User: the body of this request did not meet the expectations.');
             }
             let user: User = new UserBuilder()
                 .withName(userData.name)
@@ -50,8 +50,11 @@ export namespace UserBiz {
 
     export function deleteUser(userId: any): Promise<User> {
         return new Promise<User>((resolve: Function, reject: Function) => {
-            if (!Utils.Validation.isInteger(userId)) {
-                reject(`The value ${userId} is not valid as an id.`);
+            if (!userId || !Utils.Validation.isInteger(userId)) {
+                return reject(`The value ${userId} is not valid as an id.`);
+            }
+            if (parseInt(userId) === 1) {
+                return reject(`The superuser cannot be deleted.`);
             }
             UserDAO.removeById(userId)
                 .then((user: User) => {
@@ -65,7 +68,7 @@ export namespace UserBiz {
         let loginErrorMessage = 'Either this user does not exist or the passoword did not match.';
         return new Promise<User>((resolve: Function, reject: Function) => {
             if (!UserBusiness.loginTypeCheck(loginData)) {
-                reject('Invalid login data: the body of this request did not meet the expectations,');
+                return reject('Invalid login data: the body of this request did not meet the expectations,');
             }
             UserDAO.findByUsername(loginData.username)
                 .then((user: User) => {
