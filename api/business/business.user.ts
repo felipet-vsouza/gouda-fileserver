@@ -28,7 +28,7 @@ export namespace UserBiz {
                 .then((user: User) => {
                     resolve(user);
                 })
-                .catch((reason: any) => reject(reason));
+                .catch((reason: any) => reject(`It was not possible to acquire the information for id ${userId}.`));
         });
     }
 
@@ -44,7 +44,7 @@ export namespace UserBiz {
                 .build();
             UserDAO.create(user)
                 .then((created: User) => resolve(created))
-                .catch((reason: any) => reject(reason));
+                .catch((reason: any) => reject('It was not possible to create this User.'));
         });
     }
 
@@ -60,7 +60,7 @@ export namespace UserBiz {
                 .then((user: User) => {
                     resolve(user);
                 })
-                .catch((reason: any) => reject(reason));
+                .catch((reason: any) => reject('It was not possible to delete this User.'));
         });
     }
 

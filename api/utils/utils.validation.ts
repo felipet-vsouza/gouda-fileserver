@@ -1,8 +1,11 @@
 export namespace Validation {
 
     export function isInteger(value: string): boolean {
-        let regex = /[+-]?[0-9]{1,10}/g;
-        return regex.test(value);
+        return /[+-]?[0-9]{1,10}/g.test(value);
+    }
+
+    export function isBoolean(value: string): boolean {
+        return /(^true$|^false$)/g.test(value);
     }
 
 }

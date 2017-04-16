@@ -36,9 +36,9 @@ export namespace UserRoutes {
                         .build());
                     response.end();
                 })
-                .catch((error: NodeJS.ErrnoException) => {
+                .catch((error: string) => {
                     Response.Utils.prepareResponse(response, Response.ErrorResponseBuilder.get()
-                        .withMessage(`There was an error aquiring the information to the following user: ${userId} - ${error}`)
+                        .withMessage(error)
                         .build());
                     response.end();
                 });
@@ -61,9 +61,9 @@ export namespace UserRoutes {
                         .build());
                     response.end();
                 })
-                .catch((error: NodeJS.ErrnoException) => {
+                .catch((error: string) => {
                     Response.Utils.prepareResponse(response, Response.ErrorResponseBuilder.get()
-                        .withMessage(`There was an error creating the following user: ${user}`)
+                        .withMessage(error)
                         .build());
                     response.end();
                 });
@@ -84,9 +84,9 @@ export namespace UserRoutes {
                         .build());
                     response.end();
                 })
-                .catch((error: NodeJS.ErrnoException) => {
+                .catch((error: string) => {
                     Response.Utils.prepareResponse(response, Response.ErrorResponseBuilder.get()
-                        .withMessage(`There was an error aquiring the information to the following user: ${userId} - ${error}`)
+                        .withMessage(error)
                         .build());
                     response.end();
                 });

@@ -39,12 +39,18 @@ export namespace FileSystem {
         });
     }
 
-    export function removeDirectory(path: string): Promise<any> {
-        return new Promise((resolve: Function, reject: Function) => {
-            fs.rmdir(path, (error: NodeJS.ErrnoException) => {
-                error ? reject() : resolve();
+    export function removeDirectory(path: string) {
+        if (fs.existsSync(path)) {
+            fs.readdirSync(path).forEach(function (name, index) {
+                let subpath = join(path, name);
+                if (fs.lstatSync(subpath).isDirectory()) {
+                    removeDirectory(subpath);
+                } else {
+                    fs.unlinkSync(subpath);
+                }
             });
-        });
+            fs.rmdirSync(path);
+        }
     }
 
     export function removeFile(path: string) {
@@ -53,20 +59,13 @@ export namespace FileSystem {
         }
     }
 
-    export function clearDirectory(path: string): Promise<any> {
-        return new Promise((resolve: Function, reject: Function) => {
-            fs.readdir(path, (error: NodeJS.ErrnoException, files: string[]) => {
-                if (!error) {
-                    reject();
-                }
-                files.forEach((file: string) => {
-                    let absolutePath = join(path, file);
-                    if (fs.lstatSync(absolutePath).isFile()) {
-                        fs.unlinkSync(absolutePath);
-                    }
-                });
-                resolve();
-            });
+    export function clearDirectory(path: string) {
+        let files: string[] = fs.readdirSync(path);
+        files.forEach((file: string) => {
+            let absolutePath = join(path, file);
+            if (fs.lstatSync(absolutePath).isFile()) {
+                fs.unlinkSync(absolutePath);
+            }
         });
     }
 

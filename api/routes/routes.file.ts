@@ -18,9 +18,6 @@ export namespace FileRoutes {
         router.delete('/file/:fileId', (request: express.Request, response: express.Response) => {
             Resources.deleteFile(request, response);
         });
-        router.get('/file/listall', (request: express.Request, response: express.Response) => {
-            Resources.listAllFiles(request, response);
-        });
     }
 }
 
@@ -39,10 +36,10 @@ namespace Resources {
                 Response.Utils.prepareFileResponse(file.name, file.size, response);
                 Response.Utils.pipeReadStream(file.path, response);
             })
-            .catch(() => {
+            .catch((error: string) => {
                 Response.Utils.prepareResponse(response, Response.ErrorResponseBuilder
                     .get()
-                    .withMessage('The requested file could not be found.')
+                    .withMessage(error)
                     .build());
                 response.end();
             });
@@ -76,10 +73,10 @@ namespace Resources {
                         .build());
                     response.end();
                 })
-                .catch((reason: any) => {
+                .catch((error: string) => {
                     Response.Utils.prepareResponse(response, Response.ErrorResponseBuilder
                         .get()
-                        .withMessage('This file could not be uploaded.')
+                        .withMessage(error)
                         .build());
                     return response.end();
                 });
@@ -103,29 +100,12 @@ namespace Resources {
                     .build());
                 response.end();
             })
-            .catch((error: NodeJS.ErrnoException) => {
+            .catch((error: string) => {
                 Response.Utils.prepareResponse(response, Response.ErrorResponseBuilder.get()
-                    .withMessage(`There was an error removing this file.`)
+                    .withMessage(error)
                     .build());
                 response.end();
             });
     }
 
-    export function listAllFiles(request: express.Request, response: express.Response) {
-        Business.FileBiz.findAllFiles()
-            .then((files: any[]) => {
-                Response.Utils.prepareResponse(response, Response.SuccessResponseBuilder.get()
-                    .withBody({
-                        files: files
-                    })
-                    .build());
-                response.end();
-            })
-            .catch((reason: any) => {
-                Response.Utils.prepareResponse(response, Response.ErrorResponseBuilder.get()
-                    .withMessage('It was not possible to list all files.')
-                    .build());
-                response.end();
-            });
-    }
 }

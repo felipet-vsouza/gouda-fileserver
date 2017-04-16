@@ -55,28 +55,34 @@ export namespace DirectoryBiz {
 
     export function createDirectory(directory: any): Promise<string | Directory> {
         return new Promise<string | Directory>((resolve: Function, reject: Function) => {
-            if (!DirectoryBusiness.typeCheck(directory)) {
+            if (!DirectoryBusiness.typeCheck(directory) ||
+                !Utils.Validation.isInteger(directory.superdirectoryId) ||
+                !Utils.Validation.isBoolean(directory.private)) {
                 return reject('Invalid Directory: the body of this request did not meet the expectations.');
             }
-            let definetlyDirectory: Directory = directory;
-            return DirectoryDAO.findById(definetlyDirectory.superdirectoryId)
+            let definitelySuperdirectory;
+            let definitelyDirectory: Directory = directory;
+            return DirectoryDAO.findById(definitelyDirectory.superdirectoryId)
                 .then((superdirectory: Directory) => {
                     if (!superdirectory) {
                         return reject('The specified superdirectory could not be found.');
                     }
-                    let definetlyPath = join(superdirectory.path, definetlyDirectory.name);
-                    Utils.FileSystem.createDirectory(definetlyPath);
+                    definitelySuperdirectory = superdirectory;
+                    definitelyDirectory.path = join(superdirectory.path, definitelyDirectory.name);
+                    return Utils.FileSystem.createDirectory(definitelyDirectory.path);
+                })
+                .then(() => {
                     let directoryToCreate: Directory = new DirectoryBuilder()
-                        .withName(definetlyDirectory.name)
-                        .withPath(definetlyPath)
-                        .withPrivate(definetlyDirectory.private)
-                        .withSuperdirectory(definetlyDirectory.superdirectoryId)
+                        .withName(definitelyDirectory.name)
+                        .withPath(definitelyDirectory.path)
+                        .withPrivate(definitelyDirectory.private)
+                        .withSuperdirectory(definitelyDirectory.superdirectoryId)
                         .build();
                     return DirectoryDAO.create(directoryToCreate);
                 })
                 .then((created: Directory) => resolve(created))
                 .catch((reason: any) => {
-                    reject('there was a general problem trying to create this Directory');
+                    reject('It was not possible to create the Directory.');
                 });
         });
     }
@@ -89,10 +95,13 @@ export namespace DirectoryBiz {
             if (parseInt(id) === 1) {
                 return reject('The root directory cannot be deleted.');
             }
-            DirectoryBiz.informationForDirectory(parseInt(id))
+            DirectoryBiz.informationForDirectory(id)
                 .then((directory: Directory) => {
+                    if (!directory) {
+                        reject(`No Directory with id ${id} could be found.`);
+                    }
+                    Utils.FileSystem.removeDirectory(directory.path);
                     DirectoryBusiness.removeDirectoryAndSubdirectories(directory);
-                    DirectoryDAO.removeDirectoryAndSubdirectories(directory);
                     resolve(directory);
                 })
                 .catch((cause: any) => reject(cause));
@@ -118,12 +127,15 @@ export namespace DirectoryBiz {
         static async removeDirectoryAndSubdirectories(directory: Directory) {
             let subdirectories: Directory[] = await DirectoryDAO.findSubdirectories(directory);
             for (let index = 0; index < subdirectories.length; index++) {
-                await Utils.FileSystem.clearDirectory(subdirectories[index].path);
                 let files: File[] = await FileDAO.findByDirectoryId(subdirectories[index]._id);
-                files.forEach((file: File) => FileDAO.removeFile(file.fileId));
                 DirectoryBusiness.removeDirectoryAndSubdirectories(subdirectories[index]);
-                await Utils.FileSystem.removeDirectory(subdirectories[index].path);
+                files.forEach((file: File) => {
+                    FileDAO.removeFile(file.fileId)
+                        .catch((reason: string) => Utils.Logger.error(`There was an error in removeDirectoryAndSubdirectories: ${reason}`));
+                });
             }
+            DirectoryDAO.removeDirectory(directory)
+                .catch((reason: any) => Utils.Logger.error(`There was an error in removeDirectoryAndSubdirectories: ${reason}`));
         }
 
     }

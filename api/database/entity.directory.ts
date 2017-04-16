@@ -143,13 +143,10 @@ export class DirectoryDAO {
         });
     }
 
-    static removeDirectoryAndSubdirectories(directory: Directory): Promise<any> {
+    static removeDirectory(directory: Directory): Promise<any> {
         return new Promise<Directory[]>((resolve: Function, reject: Function) => {
             _model.find({
-                $or: [
-                    { superdirectoryId: directory._id },
-                    { id: directory._id }
-                ]
+                _id: directory._id
             })
                 .remove()
                 .exec()

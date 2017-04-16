@@ -14,9 +14,6 @@ export namespace DirectoryRoutes {
         router.delete('/directory/:directoryId', (request: express.Request, response: express.Response) => {
             Resources.deleteDirectory(request, response);
         });
-        router.get('/directory/listall', (request: express.Request, response: express.Response) => {
-            Resources.listAllDirectories(request, response);
-        });
     }
 
 }
@@ -38,9 +35,9 @@ namespace Resources {
                     .build());
                 response.end();
             })
-            .catch((error: NodeJS.ErrnoException) => {
+            .catch((error: string) => {
                 Response.Utils.prepareResponse(response, Response.ErrorResponseBuilder.get()
-                    .withMessage(`There was an error aquiring the information to the following directory: ${directoryId} - ${error}`)
+                    .withMessage(error)
                     .build());
                 response.end();
             });
@@ -63,9 +60,9 @@ namespace Resources {
                     .build());
                 response.end();
             })
-            .catch((error: NodeJS.ErrnoException) => {
+            .catch((error: string) => {
                 Response.Utils.prepareResponse(response, Response.ErrorResponseBuilder.get()
-                    .withMessage(`There was an error creating the following directory: ${directory}`)
+                    .withMessage(error)
                     .build());
                 response.end();
             });
@@ -88,29 +85,12 @@ namespace Resources {
                     .build());
                 response.end();
             })
-            .catch((error: NodeJS.ErrnoException) => {
+            .catch((error: string) => {
                 Response.Utils.prepareResponse(response, Response.ErrorResponseBuilder.get()
-                    .withMessage(`There was an error removing this directory.`)
+                    .withMessage(error)
                     .build());
                 response.end();
             });
     }
 
-    export function listAllDirectories(request: express.Request, response: express.Response) {
-        Business.DirectoryBiz.findAllDirectories()
-            .then((directories: any[]) => {
-                Response.Utils.prepareResponse(response, Response.SuccessResponseBuilder.get()
-                    .withBody({
-                        directories: directories
-                    })
-                    .build());
-                response.end();
-            })
-            .catch((reason: any) => {
-                Response.Utils.prepareResponse(response, Response.ErrorResponseBuilder.get()
-                    .withMessage('It was not possible to list all directories.')
-                    .build());
-                response.end();
-            });
-    }
 }

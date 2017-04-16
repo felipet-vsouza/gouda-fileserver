@@ -1,7 +1,7 @@
 {
     "server": {
-        "hostPath": "/home/felps/Documents/host/root",
-        "temporaryUploadPath": "/home/felps/Documents/temp",
+        "hostPath": "/home/felps/Documents/gouda/host/root",
+        "temporaryUploadPath": "/home/felps/Documents/gouda/temp",
         "ports": {
             "fileserver": 8080
         }

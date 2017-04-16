@@ -16,13 +16,13 @@ export namespace FileBiz {
             FileDAO.findById(parseInt(fileId))
                 .then((found: File) => {
                     if (!found) {
-                        return reject(`No file with id ${fileId} could be found`);
+                        return reject(`No file with id ${fileId} could be found.`);
                     }
                     file = found;
                     return Utils.FileSystem.checkIfFileExists(file.path);
                 })
                 .then(() => resolve(file))
-                .catch(() => reject());
+                .catch((reason: string) => reject(reason));
         });
     }
 
@@ -53,7 +53,7 @@ export namespace FileBiz {
                     resolve(created);
                 })
                 .catch((reason: any) => {
-                    reject('the specified Directory could not be found and the file wont be created');
+                    reject('The specified Directory could not be found and the file wont be created.');
                 });
         });
     }
