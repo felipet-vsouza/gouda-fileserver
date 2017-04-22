@@ -9,6 +9,7 @@ import * as Business from './../business';
 import { FileRoutes } from './routes.file';
 import { DirectoryRoutes } from './routes.directory';
 import { UserRoutes } from './routes.user';
+import { LoginRoutes } from './routes.login';
 
 export namespace Routes {
 
@@ -49,9 +50,10 @@ export namespace Routes {
 
     function configureRoutes(): express.Router {
         let router: express.Router = express.Router();
-        FileRoutes.configureRoutes(router);
-        DirectoryRoutes.configureRoutes(router);
-        UserRoutes.configureRoutes(router);
+        router.use('/file', FileRoutes.configureRoutes());
+        router.use('/directory', DirectoryRoutes.configureRoutes());
+        router.use('/user', UserRoutes.configureRoutes());
+        router.use('/login', LoginRoutes.configureRoutes());
         return router;
     }
 

@@ -1,19 +1,28 @@
 import * as express from 'express';
 import * as Business from './../business';
+import * as Middleware from './../middleware';
 import { Response } from './../response';
 
 export namespace DirectoryRoutes {
 
-    export function configureRoutes(router: express.Router) {
-        router.get('/directory/:directoryId?', (request: express.Request, response: express.Response) => {
-            Resources.getDirectory(request, response);
+    export function configureRoutes() {
+        let router: express.Router = express.Router();
+        router.get('/:directoryId?', (request: express.Request, response: express.Response) => {
+            Middleware.AuthenticationMiddleware.authenticate(request, response, () => {
+                Resources.getDirectory(request, response);
+            });
         });
-        router.post('/directory', (request: express.Request, response: express.Response) => {
-            Resources.createDirectory(request, response);
+        router.post('/', (request: express.Request, response: express.Response) => {
+            Middleware.AuthenticationMiddleware.authenticate(request, response, () => {
+                Resources.createDirectory(request, response);
+            });
         });
-        router.delete('/directory/:directoryId', (request: express.Request, response: express.Response) => {
-            Resources.deleteDirectory(request, response);
+        router.delete('/:directoryId', (request: express.Request, response: express.Response) => {
+            Middleware.AuthenticationMiddleware.authenticate(request, response, () => {
+                Resources.deleteDirectory(request, response);
+            });
         });
+        return router;
     }
 
 }

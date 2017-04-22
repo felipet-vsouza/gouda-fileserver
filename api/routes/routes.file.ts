@@ -1,5 +1,6 @@
 import * as express from 'express';
 import * as Business from './../business';
+import * as Middleware from './../middleware';
 import { Response } from './../response';
 import { IncomingForm, Fields, Files } from 'formidable';
 import { Configuration } from './../config/config.api';
@@ -8,16 +9,24 @@ let config: Configuration.IConfiguration = require('./../config/config.json');
 
 export namespace FileRoutes {
 
-    export function configureRoutes(router: express.Router) {
-        router.get('/file/:fileId', (request: express.Request, response: express.Response) => {
-            Resources.serveFile(request, response);
+    export function configureRoutes() {
+        let router: express.Router = express.Router();
+        router.get('/:fileId', (request: express.Request, response: express.Response) => {
+            Middleware.AuthenticationMiddleware.authenticate(request, response, () => {
+                Resources.serveFile(request, response);
+            });
         });
-        router.post('/file', (request: express.Request, response: express.Response) => {
-            Resources.storeFile(request, response);
+        router.post('/', (request: express.Request, response: express.Response) => {
+            Middleware.AuthenticationMiddleware.authenticate(request, response, () => {
+                Resources.storeFile(request, response);
+            });
         });
-        router.delete('/file/:fileId', (request: express.Request, response: express.Response) => {
-            Resources.deleteFile(request, response);
+        router.delete('/:fileId', (request: express.Request, response: express.Response) => {
+            Middleware.AuthenticationMiddleware.authenticate(request, response, () => {
+                Resources.deleteFile(request, response);
+            });
         });
+        return router;
     }
 }
 

@@ -1,22 +1,26 @@
 import * as express from 'express';
-import { Response } from './../response';
 import * as Business from './../business';
+import * as Middleware from './../middleware';
+import { Response } from './../response';
 
 export namespace UserRoutes {
 
-    export function configureRoutes(router: express.Router) {
-        router.get('/user/:userId', (request: express.Request, response: express.Response) => {
-            Resources.getUser(request, response);
+    export function configureRoutes() {
+        let router: express.Router = express.Router();
+        router.get('/:userId', (request: express.Request, response: express.Response) => {
+            Middleware.AuthenticationMiddleware.authenticate(request, response, () => {
+                Resources.getUser(request, response);
+            });
         });
-        router.post('/user', (request: express.Request, response: express.Response) => {
+        router.post('/', (request: express.Request, response: express.Response) => {
             Resources.createUser(request, response);
         });
-        router.delete('/user/:userId', (request: express.Request, response: express.Response) => {
-            Resources.deleteUser(request, response);
+        router.delete('/:userId', (request: express.Request, response: express.Response) => {
+            Middleware.AuthenticationMiddleware.authenticate(request, response, () => {
+                Resources.deleteUser(request, response);
+            });
         });
-        router.post('/login', (request: express.Request, response: express.Response) => {
-            Resources.login(request, response);
-        });
+        return router;
     }
 
     namespace Resources {
@@ -85,31 +89,6 @@ export namespace UserRoutes {
                     response.end();
                 })
                 .catch((error: string) => {
-                    Response.Utils.prepareResponse(response, Response.ErrorResponseBuilder.get()
-                        .withMessage(error)
-                        .build());
-                    response.end();
-                });
-        }
-
-        export function login(request: express.Request, response: express.Response) {
-            if (!request || !request.body || !request.body.login) {
-                Response.Utils.prepareResponse(response, Response.ErrorResponseBuilder
-                    .get()
-                    .build());
-                return response.end();
-            }
-            let login = request.body.login;
-            Business.UserBiz.login(login)
-                .then((loggedUser: any) => {
-                    Response.Utils.prepareResponse(response, Response.SuccessResponseBuilder.get()
-                        .withBody({
-                            loggedUser: loggedUser
-                        })
-                        .build());
-                    response.end();
-                })
-                .catch((error: any) => {
                     Response.Utils.prepareResponse(response, Response.ErrorResponseBuilder.get()
                         .withMessage(error)
                         .build());

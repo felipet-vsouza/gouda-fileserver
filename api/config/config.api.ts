@@ -31,6 +31,8 @@ export namespace Configuration {
     export interface ISecurityConfiguration {
         key: string;
         adminPassword: string;
+        tokenSecret: string;
+        expirationTime: number;
     }
 
 }
