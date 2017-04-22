@@ -1,7 +1,7 @@
 import * as express from 'express';
 import * as Business from './../business';
 import * as Middleware from './../middleware';
-import { Response } from './../response';
+import * as Response from './../response';
 import { IncomingForm, Fields, Files } from 'formidable';
 import { Configuration } from './../config/config.api';
 

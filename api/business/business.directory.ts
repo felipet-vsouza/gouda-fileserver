@@ -3,6 +3,7 @@ import { File, FileDAO } from './../database/entity.file';
 import { ObjectID } from 'mongodb';
 import { join } from 'path';
 import { Configuration } from './../config/config.api';
+import { DirectoryMapper, FileMapper } from './../response/index';
 import * as Utils from './../utils';
 import * as formidable from 'formidable';
 
@@ -44,7 +45,9 @@ export namespace DirectoryBiz {
                     return DirectoryDAO.findSubdirectories(directoryAndFiles.directory);
                 })
                 .then((subdirectories: Directory[]) => {
-                    directoryAndFiles.subdirectories = subdirectories;
+                    directoryAndFiles.directory = DirectoryMapper.map(directoryAndFiles.directory);
+                    directoryAndFiles.files = directoryAndFiles.files.map(FileMapper.map);
+                    directoryAndFiles.subdirectories = subdirectories.map(DirectoryMapper.map);
                     resolve(directoryAndFiles);
                 })
                 .catch((reason: any) => {
@@ -80,7 +83,7 @@ export namespace DirectoryBiz {
                         .build();
                     return DirectoryDAO.create(directoryToCreate);
                 })
-                .then((created: Directory) => resolve(created))
+                .then((created: Directory) => resolve(DirectoryMapper.map(created)))
                 .catch((reason: any) => {
                     reject('It was not possible to create the Directory.');
                 });
@@ -95,25 +98,21 @@ export namespace DirectoryBiz {
             if (parseInt(id) === 1) {
                 return reject('The root directory cannot be deleted.');
             }
-            DirectoryBiz.informationForDirectory(id)
+            informationForDirectory(id)
                 .then((directory: Directory) => {
                     if (!directory) {
                         reject(`No Directory with id ${id} could be found.`);
                     }
                     Utils.FileSystem.removeDirectory(directory.path);
                     DirectoryBusiness.removeDirectoryAndSubdirectories(directory);
-                    resolve(directory);
+                    resolve(DirectoryMapper.map(directory));
                 })
                 .catch((cause: any) => reject(cause));
         });
     }
 
-    export function informationForDirectory(id: any): Promise<Directory> {
+    function informationForDirectory(id: any): Promise<Directory> {
         return DirectoryDAO.findById(id);
-    }
-
-    export function findAllDirectories(): Promise<any[]> {
-        return DirectoryDAO.findAll();
     }
 
     class DirectoryBusiness {

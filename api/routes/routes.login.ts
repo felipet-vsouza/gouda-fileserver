@@ -1,5 +1,5 @@
 import * as express from 'express';
-import { Response } from './../response';
+import * as Response from './../response';
 import * as Business from './../business';
 
 export namespace LoginRoutes {

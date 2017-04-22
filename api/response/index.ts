@@ -1,102 +1,81 @@
-import * as http from 'http';
-import * as fs from 'fs';
-import { join } from 'path';
+import { Utils } from './response.utils';
+import { DirectoryMapper, FileMapper, UserMapper } from './response.mapper';
 
-export namespace Response {
+export {
+    Utils,
+    DirectoryMapper,
+    FileMapper,
+    UserMapper
+};
 
-    export interface Response {
-        message: string;
-        status: number;
+export interface Response {
+    message: string;
+    status: number;
+}
+
+export interface ErrorResponse extends Response {
+}
+
+export interface SuccessResponse extends Response {
+    body: any;
+}
+
+export class ErrorResponseBuilder {
+
+    private instance: ErrorResponse = {
+        message: 'The URI you are trying to access either does not exist or has some sort of issue.',
+        status: 400
+    };
+
+    static get(): ErrorResponseBuilder {
+        return new ErrorResponseBuilder();
     }
 
-    export interface ErrorResponse extends Response {
+    withMessage(message: string) {
+        this.instance.message = message;
+        return this;
     }
 
-    export interface SuccessResponse extends Response {
-        body: any;
+    withStatus(status: number) {
+        this.instance.status = status;
+        return this;
     }
 
-    export class ErrorResponseBuilder {
-
-        private instance: ErrorResponse = {
-            message: 'The URI you are trying to access either does not exist or has some sort of issue.',
-            status: 400
-        };
-
-        static get(): ErrorResponseBuilder {
-            return new ErrorResponseBuilder();
-        }
-
-        withMessage(message: string) {
-            this.instance.message = message;
-            return this;
-        }
-
-        withStatus(status: number) {
-            this.instance.status = status;
-            return this;
-        }
-
-        build(): ErrorResponse {
-            return this.instance;
-        }
-
+    build(): ErrorResponse {
+        return this.instance;
     }
 
-    export class SuccessResponseBuilder {
+}
 
-        private instance: SuccessResponse = {
-            message: 'The operation was successfully executed.',
-            status: 200,
-            body: {}
-        };
+export class SuccessResponseBuilder {
 
-        static get(): SuccessResponseBuilder {
-            return new SuccessResponseBuilder();
-        }
+    private instance: SuccessResponse = {
+        message: 'The operation was successfully executed.',
+        status: 200,
+        body: {}
+    };
 
-        withMessage(message: string) {
-            this.instance.message = message;
-            return this;
-        }
-
-        withStatus(status: number) {
-            this.instance.status = status;
-            return this;
-        }
-
-        withBody(body: any) {
-            this.instance.body = body;
-            return this;
-        }
-
-        build(): SuccessResponse {
-            return this.instance;
-        }
-
+    static get(): SuccessResponseBuilder {
+        return new SuccessResponseBuilder();
     }
 
-    export namespace Utils {
+    withMessage(message: string) {
+        this.instance.message = message;
+        return this;
+    }
 
-        export function prepareResponse(response: http.ServerResponse, responseData: Response) {
-            response.writeHead(responseData.status, { 'Content-Type': 'application/json' });
-            response.write(JSON.stringify(responseData));
-        }
+    withStatus(status: number) {
+        this.instance.status = status;
+        return this;
+    }
 
-        export function prepareFileResponse(filename: string, length: number, response: http.ServerResponse) {
-            response.writeHead(200,
-                {
-                    'Content-Disposition': `attachment; filename="${filename}"`,
-                    'Content-Length': `${length}`
-                }
-            );
-        }
+    withBody(body: any) {
+        this.instance.body = body;
+        return this;
+    }
 
-        export function pipeReadStream(filepath: string, response: http.ServerResponse) {
-            fs.createReadStream(filepath)
-                .pipe(response);
-        }
-
+    build(): SuccessResponse {
+        return this.instance;
     }
 
 }

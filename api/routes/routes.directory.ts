@@ -1,7 +1,7 @@
 import * as express from 'express';
 import * as Business from './../business';
 import * as Middleware from './../middleware';
-import { Response } from './../response';
+import * as Response from './../response';
 
 export namespace DirectoryRoutes {
 

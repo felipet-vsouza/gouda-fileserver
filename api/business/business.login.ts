@@ -1,4 +1,5 @@
 import { User, UserBuilder, UserDAO } from './../database/entity.user';
+import { UserMapper } from './../response';
 import { Configuration } from './../config/config.api';
 import { HmacSHA256 } from 'crypto-js';
 import { sign, SignOptions } from 'jsonwebtoken';
@@ -18,7 +19,7 @@ export namespace LoginBiz {
                 .then((user: User) => {
                     user.password === HmacSHA256(loginData.password, config.security.key).toString() ?
                         resolve({
-                            user: user,
+                            user: UserMapper.map(user),
                             token: LoginBusiness.signAndGenerateToken(user)
                         }) :
                         reject(loginErrorMessage);

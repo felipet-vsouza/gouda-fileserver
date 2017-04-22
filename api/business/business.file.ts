@@ -1,5 +1,6 @@
 import { File, FileDAO, FileBuilder } from './../database/entity.file';
 import { Directory, DirectoryDAO } from './../database/entity.directory';
+import { FileMapper } from './../response';
 import { ObjectID } from 'mongodb';
 import { join } from 'path';
 import * as Utils from './../utils';
@@ -21,7 +22,7 @@ export namespace FileBiz {
                     file = found;
                     return Utils.FileSystem.checkIfFileExists(file.path);
                 })
-                .then(() => resolve(file))
+                .then(() => resolve(FileMapper.map(file)))
                 .catch((reason: string) => reject(reason));
         });
     }
@@ -50,7 +51,7 @@ export namespace FileBiz {
                     return FileDAO.create(fileToStore);
                 })
                 .then((created: File) => {
-                    resolve(created);
+                    resolve(FileMapper.map(created));
                 })
                 .catch((reason: any) => {
                     reject('The specified Directory could not be found and the file wont be created.');
@@ -71,14 +72,10 @@ export namespace FileBiz {
                     let file = found;
                     Utils.FileSystem.removeFile(file.path);
                     FileDAO.removeFile(file.fileId);
-                    resolve(file);
+                    resolve(FileMapper.map(file));
                 })
                 .catch((cause: any) => reject(cause));
         });
-    }
-
-    export function findAllFiles(): Promise<any[]> {
-        return FileDAO.findAll();
     }
 
     class FileBusiness {

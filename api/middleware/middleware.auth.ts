@@ -1,7 +1,7 @@
 import * as express from 'express';
 import { verify, JsonWebTokenError } from 'jsonwebtoken';
 import { Configuration } from './../config/config.api';
-import { Response } from './../response';
+import * as Response from './../response';
 
 let config: Configuration.IConfiguration = require('./../config/config.json');
 

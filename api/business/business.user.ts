@@ -1,4 +1,5 @@
 import { User, UserBuilder, UserDAO } from './../database/entity.user';
+import { UserMapper } from './../response';
 import { Configuration } from './../config/config.api';
 import { HmacSHA256 } from 'crypto-js';
 import * as Utils from './../utils';
@@ -26,7 +27,7 @@ export namespace UserBiz {
             }
             UserDAO.findById(userId)
                 .then((user: User) => {
-                    resolve(user);
+                    resolve(UserMapper.map(user));
                 })
                 .catch((reason: any) => reject(`It was not possible to acquire the information for id ${userId}.`));
         });
@@ -43,7 +44,7 @@ export namespace UserBiz {
                 .withPassword(HmacSHA256(userData.password, config.security.key).toString())
                 .build();
             UserDAO.create(user)
-                .then((created: User) => resolve(created))
+                .then((created: User) => resolve(UserMapper.map(created)))
                 .catch((reason: any) => reject('It was not possible to create this User.'));
         });
     }
@@ -58,7 +59,7 @@ export namespace UserBiz {
             }
             UserDAO.removeById(userId)
                 .then((user: User) => {
-                    resolve(user);
+                    resolve(UserMapper.map(user));
                 })
                 .catch((reason: any) => reject('It was not possible to delete this User.'));
         });

@@ -3,7 +3,7 @@ import * as express from 'express';
 import * as bodyParser from 'body-parser';
 import { Configuration } from './../config/config.api';
 import { Database } from './../database';
-import { Response } from './../response';
+import * as Response from './../response';
 import * as Business from './../business';
 
 import { FileRoutes } from './routes.file';
