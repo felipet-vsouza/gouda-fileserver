@@ -19,6 +19,6 @@
         "key": "gouda tastes marvelously good",
         "adminPassword": "welcome1",
         "tokenSecret": "cheeseisbetterthanbeets",
-        "expirationTime": 1440
+        "expirationTime": 15
     }
 }

@@ -8,7 +8,6 @@ let config: Configuration.IConfiguration = require('./../config/config.json');
 
 export namespace LoginBiz {
 
-
     export function login(loginData: any): Promise<User> {
         let loginErrorMessage = 'Either this user does not exist or the passoword did not match.';
         return new Promise<User>((resolve: Function, reject: Function) => {

@@ -14,7 +14,7 @@ export namespace AuthenticationMiddleware {
                 if (error) {
                     Response.Utils.prepareResponse(response, Response.ErrorResponseBuilder.get()
                         .withMessage('The authentication token is not valid.')
-                        .withStatus(403)
+                        .withStatus(401)
                         .build());
                     response.end();
                 } else {
@@ -28,5 +28,5 @@ export namespace AuthenticationMiddleware {
                 .build());
             response.end();
         }
-    };
+    }
 }
