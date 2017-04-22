@@ -1,6 +1,6 @@
 import { User, UserBuilder, UserDAO } from './../database/entity.user';
 import { Configuration } from './../config/config.api';
-import * as Utils from './../utils/utils';
+import * as Utils from './../utils';
 import { HmacSHA256 } from 'crypto-js';
 
 let config: Configuration.IConfiguration = require('./../config/config.json');

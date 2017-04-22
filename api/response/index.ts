@@ -46,7 +46,7 @@ export namespace Response {
     export class SuccessResponseBuilder {
 
         private instance: SuccessResponse = {
-            message: 'The data was successfully aquired.',
+            message: 'The operation was successfully executed.',
             status: 200,
             body: {}
         };

@@ -2,9 +2,9 @@ import * as http from 'http';
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
 import { Configuration } from './../config/config.api';
-import { Database } from './../database/database';
-import { Response } from './../response/response';
-import * as Business from './../business/business';
+import { Database } from './../database';
+import { Response } from './../response';
+import * as Business from './../business';
 
 import { FileRoutes } from './routes.file';
 import { DirectoryRoutes } from './routes.directory';
@@ -38,7 +38,7 @@ export namespace Routes {
                 let fabulousRegex = /[^,:{}\[\]0-9.\-+Eaeflnr-u \n\r\t]/;
                 if (!(fabulousRegex.test(buffer.toString()))) {
                     Response.Utils.prepareResponse(response, Response.ErrorResponseBuilder.get()
-                        .withMessage('You worthless maggot, cease trying to corrupt this paltry and innocent server! (if you don\'t understand, that\'s because this body is not a JSON)')
+                        .withMessage('You worthless maggot, cease trying to corrupt this paltry innocent server! (if you don\'t understand, that\'s because this body is not a JSON)')
                         .build());
                     response.end();
                     throw Error;

@@ -1,5 +1,5 @@
 import * as mongoose from 'mongoose';
-import * as Utils from './../utils/utils';
+import * as Utils from './../utils';
 import { Configuration } from './../config/config.api';
 
 let config: Configuration.IConfiguration = require('./../config/config.json');

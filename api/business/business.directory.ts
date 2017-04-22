@@ -3,7 +3,7 @@ import { File, FileDAO } from './../database/entity.file';
 import { ObjectID } from 'mongodb';
 import { join } from 'path';
 import { Configuration } from './../config/config.api';
-import * as Utils from './../utils/utils';
+import * as Utils from './../utils';
 import * as formidable from 'formidable';
 
 let config = require('./../config/config.json') as Configuration.IConfiguration;
