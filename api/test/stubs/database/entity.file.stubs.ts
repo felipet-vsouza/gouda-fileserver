@@ -58,7 +58,7 @@ export class FileDAO {
                     .filter((file: File) => file.fileId === id)
                     .pop())
                 :
-                reject('');
+                resolve(undefined);
         });
     }
 
@@ -74,7 +74,7 @@ export class FileDAO {
                 resolve(FileDAO.list
                     .filter((file: File) => file.directoryId === directoryId))
                 :
-                reject('');
+                resolve(undefined);
         });
     }
 
@@ -85,7 +85,7 @@ export class FileDAO {
                     .filter((file: File) => file.fileId === id)
                     .pop())
                 :
-                reject('');
+                resolve(undefined);
         });
     }
 

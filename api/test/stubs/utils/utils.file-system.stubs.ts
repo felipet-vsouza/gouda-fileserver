@@ -6,4 +6,8 @@ export namespace FileSystem {
         });
     }
 
+    export function removeFile(path: string) {
+        return;
+    }
+
 }

@@ -5,7 +5,8 @@
   "main": "server.js",
   "scripts": {
     "start": "node ~/Documents/github/gouda-fileserver/dist/server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha dist/test/*.js",
+    "test-debug": "mocha dist/test/*.js --debug-brk"
   },
   "repository": {
     "type": "git",
