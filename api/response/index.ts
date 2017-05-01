@@ -1,11 +1,14 @@
 import { Utils } from './response.utils';
-import { DirectoryMapper, FileMapper, UserMapper } from './response.mapper';
+import { DirectoryMapper, FileMapper, UserMapper, MappedFile, MappedUser, MapperDirectory } from './response.mapper';
 
 export {
     Utils,
     DirectoryMapper,
     FileMapper,
-    UserMapper
+    UserMapper,
+    MappedFile,
+    MappedUser,
+    MapperDirectory
 };
 
 export interface Response {

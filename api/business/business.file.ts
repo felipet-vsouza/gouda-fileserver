@@ -1,6 +1,6 @@
 import { File, FileDAO, FileBuilder } from './../database/entity.file';
 import { Directory, DirectoryDAO } from './../database/entity.directory';
-import { FileMapper } from './../response';
+import { FileMapper, MappedFile } from './../response';
 import { ObjectID } from 'mongodb';
 import { join } from 'path';
 import * as Utils from './../utils';
@@ -8,9 +8,9 @@ import * as formidable from 'formidable';
 
 export namespace FileBiz {
 
-    export function getFile(fileId: any): Promise<File> {
+    export function getFile(fileId: any): Promise<MappedFile> {
         let file: File;
-        return new Promise<File>((resolve: Function, reject: Function) => {
+        return new Promise<MappedFile>((resolve: Function, reject: Function) => {
             if (!fileId || !Utils.Validation.isInteger(fileId)) {
                 return reject('Invalid id: this request did not meet the expectations.');
             }
@@ -27,8 +27,8 @@ export namespace FileBiz {
         });
     }
 
-    export function storeFile(file: formidable.File, fileData: any, uploadDirectory: string): Promise<File> {
-        return new Promise<File>((resolve: Function, reject: Function) => {
+    export function storeFile(file: formidable.File, fileData: any, uploadDirectory: string): Promise<MappedFile> {
+        return new Promise<MappedFile>((resolve: Function, reject: Function) => {
             if (!FileBusiness.typeCheck(fileData)) {
                 return reject('Invalid File: the body of this request did not meet the expectations.');
             }
@@ -59,8 +59,8 @@ export namespace FileBiz {
         });
     }
 
-    export function deleteFile(fileId: any): Promise<File> {
-        return new Promise<File>((resolve: Function, reject: Function) => {
+    export function deleteFile(fileId: any): Promise<MappedFile> {
+        return new Promise<MappedFile>((resolve: Function, reject: Function) => {
             if (!fileId || !Utils.Validation.isInteger(fileId)) {
                 return reject('Invalid id: this request did not meet the expectations.');
             }
