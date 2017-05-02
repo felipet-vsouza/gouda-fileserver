@@ -1,4 +1,5 @@
 import 'mocha';
+import * as formidable from 'formidable';
 import * as proxyquire from 'proxyquire';
 import * as chai from 'chai';
 import * as fileDAOStubs from './stubs/database/entity.file.stubs';
@@ -9,13 +10,20 @@ import { MappedFile } from './../response';
 let business = proxyquire('./../business/business.file',
     {
         './../database/entity.file': require('./stubs/database/entity.file.stubs'),
+        './../database/entity.directory': require('./stubs/database/entity.directory.stubs'),
         './../utils': require('./stubs/utils')
     });
 
 let config = require('./../config/config.json');
 
+/**
+ * FileBiz
+ */
 describe('FileBiz', () => {
 
+    /**
+     * Function getFile
+     */
     describe('getFile', () => {
         it('should successfully get the file with id 1', (done: MochaDone) => {
             business.FileBiz.getFile(1)
@@ -87,6 +95,158 @@ describe('FileBiz', () => {
 
     });
 
+    /**
+     * Function storeFile
+     */
+    describe('storeFile', () => {
+
+        it('should successfully store a valid file in the root directory', (done: MochaDone) => {
+            let formidableFile: formidable.File = {
+                name: 'fifth-file-wannabe.yml',
+                size: 5120,
+                path: 'home/Felps/Documents/Gouda/temp',
+                type: '',
+                lastModifiedDate: new Date(),
+                toJSON: (): Object => {
+                    return undefined;
+                }
+            };
+            let fileData: any = {
+                directoryId: 1
+            };
+            business.FileBiz.storeFile(formidableFile, fileData)
+                .then((stored: MappedFile) => {
+                    chai.assert(stored.id === 5, `Id ${stored.id} is not equal to 5`);
+                    chai.assert(stored.name === 'fifth-file-wannabe.yml', `Name ${stored.name} is not equal to 'fifth-file-wannabe.yml'`);
+                    chai.assert(stored.private === false, `Private ${stored.private} is not equal to false`);
+                    chai.assert(stored.size === 5120, `Size ${stored.size} is not equal to 5120`);
+                    chai.assert(typeof stored.uploaded === 'object', `Typeof uploaded ${typeof stored.uploaded} is not equal to 'object'`);
+                    done();
+                });
+        });
+
+        it('should successfully store a valid file in a non-root directory', (done: MochaDone) => {
+            let formidableFile: formidable.File = {
+                name: 'fifth-file-wannabe.yml',
+                size: 5120,
+                path: 'home/Felps/Documents/Gouda/temp',
+                type: '',
+                lastModifiedDate: new Date(),
+                toJSON: (): Object => {
+                    return undefined;
+                }
+            };
+            let fileData: any = {
+                directoryId: 3
+            };
+            business.FileBiz.storeFile(formidableFile, fileData)
+                .then((stored: MappedFile) => {
+                    chai.assert(stored.id === 5, `Id ${stored.id} is not equal to 5`);
+                    chai.assert(stored.name === 'fifth-file-wannabe.yml', `Name ${stored.name} is not equal to 'fifth-file-wannabe.yml'`);
+                    chai.assert(stored.private === false, `Private ${stored.private} is not equal to false`);
+                    chai.assert(stored.size === 5120, `Size ${stored.size} is not equal to 5120`);
+                    chai.assert(typeof stored.uploaded === 'object', `Typeof uploaded ${typeof stored.uploaded} is not equal to 'object'`);
+                    done();
+                });
+        });
+
+        it('should not store a valid file when directory is not specified', (done: MochaDone) => {
+            let formidableFile: formidable.File = {
+                name: 'fifth-file-wannabe.yml',
+                size: 5120,
+                path: 'home/Felps/Documents/Gouda/temp',
+                type: '',
+                lastModifiedDate: new Date(),
+                toJSON: (): Object => {
+                    return undefined;
+                }
+            };
+            let fileData: any = {
+            };
+            business.FileBiz.storeFile(formidableFile, fileData)
+                .catch((reason: string) => {
+                    chai.assert(reason === 'Invalid File: the body of this request did not meet the expectations.', `Reason message didn't meet the expectations`);
+                    done();
+                });
+        });
+
+        it('should not store a valid file when directoryId is not an integer', (done: MochaDone) => {
+            let formidableFile: formidable.File = {
+                name: 'fifth-file-wannabe.yml',
+                size: 5120,
+                path: 'home/Felps/Documents/Gouda/temp',
+                type: '',
+                lastModifiedDate: new Date(),
+                toJSON: (): Object => {
+                    return undefined;
+                }
+            };
+            let fileData: any = {
+                directoryId: 'may I?'
+            };
+            business.FileBiz.storeFile(formidableFile, fileData)
+                .catch((reason: string) => {
+                    chai.assert(reason === 'Invalid File: the body of this request did not meet the expectations.', `Reason message didn't meet the expectations`);
+                    fileData.directoryId = null;
+                    return business.FileBiz.storeFile(formidableFile, fileData);
+                })
+                .catch((reason: string) => {
+                    chai.assert(reason === 'Invalid File: the body of this request did not meet the expectations.', `Reason message didn't meet the expectations`);
+                    fileData.directoryId = undefined;
+                    return business.FileBiz.storeFile(formidableFile, fileData);
+                })
+                .catch((reason: string) => {
+                    chai.assert(reason === 'Invalid File: the body of this request did not meet the expectations.', `Reason message didn't meet the expectations`);
+                    fileData.directoryId = {};
+                    return business.FileBiz.storeFile(formidableFile, fileData);
+                })
+                .catch((reason: string) => {
+                    chai.assert(reason === 'Invalid File: the body of this request did not meet the expectations.', `Reason message didn't meet the expectations`);
+                    fileData.directoryId = new Date();
+                    return business.FileBiz.storeFile(formidableFile, fileData);
+                })
+                .catch((reason: string) => {
+                    chai.assert(reason === 'Invalid File: the body of this request did not meet the expectations.', `Reason message didn't meet the expectations`);
+                    fileData.directoryId = [];
+                    return business.FileBiz.storeFile(formidableFile, fileData);
+                })
+                .catch((reason: string) => {
+                    chai.assert(reason === 'Invalid File: the body of this request did not meet the expectations.', `Reason message didn't meet the expectations`);
+                    done();
+                });
+        });
+
+        it('should not store a valid file when directory is not found', (done: MochaDone) => {
+            let formidableFile: formidable.File = {
+                name: 'fifth-file-wannabe.yml',
+                size: 5120,
+                path: 'home/Felps/Documents/Gouda/temp',
+                type: '',
+                lastModifiedDate: new Date(),
+                toJSON: (): Object => {
+                    return undefined;
+                }
+            };
+            let fileData: any = {
+                directoryId: 666
+            };
+            business.FileBiz.storeFile(formidableFile, fileData)
+                .catch((reason: string) => {
+                    chai.assert(reason === 'The specified directory could not be found.', `Reason message didn't meet the expectations`);
+                    fileData.directoryId = -12;
+                    return business.FileBiz.storeFile(formidableFile, fileData);
+                })
+                .catch((reason: string) => {
+                    chai.assert(reason === 'The specified directory could not be found.', `Reason message didn't meet the expectations`);
+                    done();
+                });
+        });
+
+    });
+
+    /**
+     * Function deleteFile
+     */
     describe('deleteFile', () => {
 
         it('should successfully return the deleted file with id 3', (done: MochaDone) => {

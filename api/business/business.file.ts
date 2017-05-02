@@ -27,14 +27,17 @@ export namespace FileBiz {
         });
     }
 
-    export function storeFile(file: formidable.File, fileData: any, uploadDirectory: string): Promise<MappedFile> {
+    export function storeFile(file: formidable.File, fileData: any): Promise<MappedFile> {
         return new Promise<MappedFile>((resolve: Function, reject: Function) => {
-            if (!FileBusiness.typeCheck(fileData)) {
+            if (!FileBusiness.typeCheck(fileData) || !Utils.Validation.isInteger(fileData.directoryId)) {
                 return reject('Invalid File: the body of this request did not meet the expectations.');
             }
             let definetlyFile: File = fileData;
             DirectoryDAO.findById(definetlyFile.directoryId)
                 .then(async (directory: Directory) => {
+                    if (!directory) {
+                        return reject('The specified directory could not be found.');
+                    }
                     let destinationPath = join(directory.path, file.name);
                     let fsError = await Utils.FileSystem.copyAndRemoveFile(file.path, destinationPath);
                     if (fsError) {
@@ -50,8 +53,8 @@ export namespace FileBiz {
                         .build();
                     return FileDAO.create(fileToStore);
                 })
-                .then((created: File) => {
-                    resolve(FileMapper.map(created));
+                .then((created: any) => {
+                    resolve(FileMapper.map(created as File));
                 })
                 .catch((reason: any) => {
                     reject('The specified Directory could not be found and the file wont be created.');

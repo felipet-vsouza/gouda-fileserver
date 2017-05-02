@@ -10,4 +10,10 @@ export namespace FileSystem {
         return;
     }
 
+    export function copyAndRemoveFile(path: string, destination: string) {
+        return new Promise<any>((resolve: Function, reject: Function) => {
+            resolve(undefined);
+        });
+    }
+
 }

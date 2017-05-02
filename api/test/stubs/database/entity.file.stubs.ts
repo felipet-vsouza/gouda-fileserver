@@ -1,7 +1,8 @@
-import { File } from './../../../database/entity.file';
+import { File, FileBuilder } from './../../../database/entity.file';
 
 export {
-    File
+    File,
+    FileBuilder
 }
 
 export class FileDAO {
@@ -47,6 +48,7 @@ export class FileDAO {
 
     static create(file: File): Promise<File> {
         return new Promise<File>((resolve: Function, reject: Function) => {
+            file.fileId = FileDAO.list.length + 1;
             resolve(file);
         });
     }

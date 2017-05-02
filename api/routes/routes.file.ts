@@ -72,7 +72,7 @@ namespace Resources {
                     .build());
                 return response.end();
             }
-            Business.FileBiz.storeFile(files['commonFile'], fields, form.uploadDir)
+            Business.FileBiz.storeFile(files['commonFile'], fields)
                 .then((created: any) => {
                     Response.Utils.prepareResponse(response, Response.SuccessResponseBuilder
                         .get()
