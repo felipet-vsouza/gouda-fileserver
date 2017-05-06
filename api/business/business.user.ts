@@ -22,7 +22,7 @@ export namespace UserBiz {
 
     export function getUserInformation(userId: any): Promise<User> {
         return new Promise<User>((resolve: Function, reject: Function) => {
-            if (!Utils.Validation.isInteger(userId)) {
+            if (!userId || !Utils.Validation.isInteger(userId)) {
                 return reject(`The value ${userId} is not valid as an id.`);
             }
             UserDAO.findById(userId)
@@ -37,13 +37,24 @@ export namespace UserBiz {
         return new Promise<User>((resolve: Function, reject: Function) => {
             if (!UserBusiness.typeCheck(userData)) {
                 return reject('Invalid User: the body of this request did not meet the expectations.');
+            } else if (UserBusiness.isAnInvalidPassword(userData.password)) {
+                return reject(`Invalid User: the password doesn't meet the requirements.`);
+            } else if (UserBusiness.isAnInvalidUsername(userData.username)) {
+                return reject(`Invalid User: the username doesn't meet the requirements.`);
             }
             let user: User = new UserBuilder()
                 .withName(userData.name)
                 .withUsername(userData.username)
                 .withPassword(HmacSHA256(userData.password, config.security.key).toString())
                 .build();
-            UserDAO.create(user)
+            UserDAO.usernameExists(user.username)
+                .then((exists: boolean) => {
+                    if (exists) {
+                        return reject(`Invalid User: the username ${user.username} already exists.`);
+                    } else {
+                        return UserDAO.create(user);
+                    }
+                })
                 .then((created: User) => resolve(UserMapper.map(created)))
                 .catch((reason: any) => reject('It was not possible to create this User.'));
         });
@@ -61,7 +72,7 @@ export namespace UserBiz {
                 .then((user: User) => {
                     resolve(UserMapper.map(user));
                 })
-                .catch((reason: any) => reject('It was not possible to delete this User.'));
+                .catch((reason: any) => reject(`No user with id ${userId} could be found.`));
         });
     }
 
@@ -71,6 +82,19 @@ export namespace UserBiz {
             return 'name' in object &&
                 'username' in object &&
                 'password' in object;
+        }
+
+        static isAnInvalidPassword(password: string) {
+            let isTooBig: boolean = password.length > 50;
+            let isTooShort: boolean = password.length < 8;
+            return isTooBig || isTooShort;
+        }
+
+        static isAnInvalidUsername(username: string) {
+            let isTooBig: boolean = username.length > 16;
+            let isTooShort: boolean = username.length < 5;
+            let hasInvalidCharacter: boolean = /^.*?(?=[\^#%&$@¨`´^~!.,\*:<>\?/\{\|\}]).*$/g.test(username);
+            return isTooBig || isTooShort || hasInvalidCharacter;
         }
 
     }

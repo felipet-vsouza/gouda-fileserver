@@ -141,6 +141,17 @@ export class UserDAO {
         });
     }
 
+    static usernameExists(username: string): Promise<boolean> {
+        return new Promise<boolean>((resolve: Function, reject: Function) => {
+            _model.find({
+                username: username
+            })
+                .exec()
+                .then((users: IUser[]) => resolve(users.length !== 0))
+                .catch((reason: any) => reject(reason));
+        });
+    }
+
     static removeById(id: number): Promise<any> {
         return new Promise<any>((resolve: Function, reject: Function) => {
             _model.find({

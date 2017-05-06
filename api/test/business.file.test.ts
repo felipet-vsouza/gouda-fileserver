@@ -2,9 +2,7 @@ import 'mocha';
 import * as formidable from 'formidable';
 import * as proxyquire from 'proxyquire';
 import * as chai from 'chai';
-import * as fileDAOStubs from './stubs/database/entity.file.stubs';
 import { Logger } from './../utils';
-import { File } from './../database/entity.file';
 import { MappedFile } from './../response';
 
 let business = proxyquire('./../business/business.file',
@@ -13,8 +11,6 @@ let business = proxyquire('./../business/business.file',
         './../database/entity.directory': require('./stubs/database/entity.directory.stubs'),
         './../utils': require('./stubs/utils')
     });
-
-let config = require('./../config/config.json');
 
 /**
  * FileBiz
@@ -25,6 +21,7 @@ describe('FileBiz', () => {
      * Function getFile
      */
     describe('getFile', () => {
+
         it('should successfully get the file with id 1', (done: MochaDone) => {
             business.FileBiz.getFile(1)
                 .then((file: MappedFile) => {
@@ -57,7 +54,7 @@ describe('FileBiz', () => {
                 });
         });
 
-        it('should reject when id is 0, undefined, false or null', (done: MochaDone) => {
+        it('should reject when id is 0, undefined, false, NaN or null', (done: MochaDone) => {
             business.FileBiz.getFile(0)
                 .catch((reason: string) => {
                     chai.assert(reason === 'Invalid id: this request did not meet the expectations.', `Reason message didn't meet the expectations`);
@@ -66,6 +63,10 @@ describe('FileBiz', () => {
                 .catch((reason: string) => {
                     chai.assert(reason === 'Invalid id: this request did not meet the expectations.', `Reason message didn't meet the expectations`);
                     return business.FileBiz.getFile(false);
+                })
+                .catch((reason: string) => {
+                    chai.assert(reason === 'Invalid id: this request did not meet the expectations.', `Reason message didn't meet the expectations`);
+                    return business.FileBiz.getFile(NaN);
                 })
                 .catch((reason: string) => {
                     chai.assert(reason === 'Invalid id: this request did not meet the expectations.', `Reason message didn't meet the expectations`);
@@ -281,7 +282,7 @@ describe('FileBiz', () => {
                 });
         });
 
-        it('should reject when id is 0, undefined, false or null', (done: MochaDone) => {
+        it('should reject when id is 0, undefined, false, NaN or null', (done: MochaDone) => {
             business.FileBiz.deleteFile(0)
                 .catch((reason: string) => {
                     chai.assert(reason === 'Invalid id: this request did not meet the expectations.', `Reason message didn't meet the expectations`);
@@ -290,6 +291,10 @@ describe('FileBiz', () => {
                 .catch((reason: string) => {
                     chai.assert(reason === 'Invalid id: this request did not meet the expectations.', `Reason message didn't meet the expectations`);
                     return business.FileBiz.deleteFile(false);
+                })
+                .catch((reason: string) => {
+                    chai.assert(reason === 'Invalid id: this request did not meet the expectations.', `Reason message didn't meet the expectations`);
+                    return business.FileBiz.deleteFile(NaN);
                 })
                 .catch((reason: string) => {
                     chai.assert(reason === 'Invalid id: this request did not meet the expectations.', `Reason message didn't meet the expectations`);
