@@ -93,9 +93,9 @@ describe('UserBiz', () => {
     });
 
     /**
-     * Function storeFile
+     * Function createUser
      */
-    describe('storeFile', () => {
+    describe('createUser', () => {
 
         it('should successfully store a valid user', (done: MochaDone) => {
             let userWannabe: any = {
@@ -294,9 +294,9 @@ describe('UserBiz', () => {
     });
 
     /**
-     * Function deleteFile
+     * Function deleteUser
      */
-    describe('deleteFile', () => {
+    describe('deleteUser', () => {
 
         it('should successfully return the deleted user with id 3', (done: MochaDone) => {
             business.UserBiz.deleteUser(3)
