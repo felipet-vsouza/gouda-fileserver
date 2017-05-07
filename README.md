@@ -1,4 +1,4 @@
-# Gouda fileserver
+# Gouda 🧀
 A very simple file server developed using Node.js.
 
 ## Configurations
