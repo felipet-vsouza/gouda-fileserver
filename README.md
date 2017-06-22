@@ -1,4 +1,4 @@
-# Gouda 🧀
+# Gouda 🧀 ![Build status](https://travis-ci.org/felipet-vsouza/gouda-fileserver.svg?branch=master)
 A very simple file server developed using Node.js.
 
 ## Configurations
