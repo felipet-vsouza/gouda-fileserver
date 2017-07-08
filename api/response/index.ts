@@ -1,5 +1,5 @@
 import { Utils } from './response.utils';
-import { DirectoryMapper, FileMapper, UserMapper, MappedFile, MappedUser, MapperDirectory } from './response.mapper';
+import { DirectoryMapper, FileMapper, UserMapper, MappedFile, MappedUser, MappedDirectory } from './response.mapper';
 
 export {
     Utils,
@@ -8,7 +8,7 @@ export {
     UserMapper,
     MappedFile,
     MappedUser,
-    MapperDirectory
+    MappedDirectory
 };
 
 export interface Response {

@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node ~/Documents/github/gouda-fileserver/dist/server.js",
     "test": "mocha dist/test/*.js",
-    "test-debug": "mocha dist/test/*.js --debug-brk"
+    "test-debug": "mocha dist/test/*.js --debug-brk",
+    "build": "gulp"
   },
   "repository": {
     "type": "git",

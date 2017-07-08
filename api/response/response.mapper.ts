@@ -2,7 +2,7 @@ import { Directory } from './../database/entity.directory';
 import { File } from './../database/entity.file';
 import { User } from './../database/entity.user';
 
-export interface MapperDirectory {
+export interface MappedDirectory {
     name: string;
     created: Date;
     id: number;
@@ -26,7 +26,7 @@ export interface MappedUser {
 
 export class DirectoryMapper {
 
-    static map(directory: Directory): MapperDirectory {
+    static map(directory: Directory): MappedDirectory {
         return {
             name: directory.name,
             created: directory.created,

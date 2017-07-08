@@ -23,7 +23,7 @@ export namespace DirectoryBiz {
         });
     }
 
-    export async function getDirectoryAndFiles(directoryId: any): Promise<Directory> {
+    export function getDirectoryAndFiles(directoryId: any): Promise<Directory> {
         return new Promise<Directory>((resolve: Function, reject: Function) => {
             if (directoryId && !Utils.Validation.isInteger(directoryId)) {
                 return reject(`The value ${directoryId} is not valid as an id.`);
