@@ -15,7 +15,8 @@ export class FileDAO {
             path: '/home/user/Documents/first-file.pdf',
             private: false,
             size: 1024,
-            directoryId: 1
+            directoryId: 1,
+            ownerId: 1
         },
         {
             fileId: 2,
@@ -24,7 +25,8 @@ export class FileDAO {
             path: '/home/user/Documents/secondFile.txt',
             private: true,
             size: 2048,
-            directoryId: 1
+            directoryId: 1,
+            ownerId: 2
         },
         {
             fileId: 3,
@@ -33,7 +35,8 @@ export class FileDAO {
             path: '/home/user/Documents/third file.docx',
             private: false,
             size: 3072,
-            directoryId: 2
+            directoryId: 2,
+            ownerId: 2
         },
         {
             fileId: 4,
@@ -42,7 +45,8 @@ export class FileDAO {
             path: '/home/user/Documents/fourthfile.c',
             private: true,
             size: 4096,
-            directoryId: 3
+            directoryId: 3,
+            ownerId: 4
         }
     ];
 

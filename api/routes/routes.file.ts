@@ -4,6 +4,7 @@ import * as Middleware from './../middleware';
 import * as Response from './../response';
 import { IncomingForm, Fields, Files } from 'formidable';
 import { Configuration } from './../config/config.api';
+import { User } from './../database/entity.user';
 
 let config: Configuration.IConfiguration = require('./../config/config.json');
 
@@ -12,18 +13,18 @@ export namespace FileRoutes {
     export function configureRoutes() {
         let router: express.Router = express.Router();
         router.get('/:fileId', (request: express.Request, response: express.Response) => {
-            Middleware.AuthenticationMiddleware.authenticate(request, response, () => {
-                Resources.serveFile(request, response);
+            Middleware.AuthenticationMiddleware.authenticate(request, response, (sessionUser: User) => {
+                Resources.serveFile(request, response, sessionUser);
             });
         });
         router.post('/', (request: express.Request, response: express.Response) => {
-            Middleware.AuthenticationMiddleware.authenticate(request, response, () => {
-                Resources.storeFile(request, response);
+            Middleware.AuthenticationMiddleware.authenticate(request, response, (sessionUser: User) => {
+                Resources.storeFile(request, response, sessionUser);
             });
         });
         router.delete('/:fileId', (request: express.Request, response: express.Response) => {
-            Middleware.AuthenticationMiddleware.authenticate(request, response, () => {
-                Resources.deleteFile(request, response);
+            Middleware.AuthenticationMiddleware.authenticate(request, response, (sessionUser: User) => {
+                Resources.deleteFile(request, response, sessionUser);
             });
         });
         return router;
@@ -32,7 +33,7 @@ export namespace FileRoutes {
 
 namespace Resources {
 
-    export function serveFile(request: express.Request, response: express.Response) {
+    export function serveFile(request: express.Request, response: express.Response, sessionUser: User) {
         if (!request || !request.params) {
             Response.Utils.prepareResponse(response, Response.ErrorResponseBuilder
                 .get()
@@ -40,7 +41,7 @@ namespace Resources {
             return response.end();
         }
         let fileId = request.params.fileId;
-        Business.FileBiz.getFile(fileId)
+        Business.FileBiz.getFile(fileId, sessionUser)
             .then((file: any) => {
                 Response.Utils.prepareFileResponse(file.name, file.size, response);
                 Response.Utils.pipeReadStream(file.path, response);
@@ -54,7 +55,7 @@ namespace Resources {
             });
     }
 
-    export function storeFile(request: express.Request, response: express.Response) {
+    export function storeFile(request: express.Request, response: express.Response, sessionUser: User) {
         if (!request || !request.body) {
             Response.Utils.prepareResponse(response, Response.ErrorResponseBuilder
                 .get()
@@ -72,7 +73,7 @@ namespace Resources {
                     .build());
                 return response.end();
             }
-            Business.FileBiz.storeFile(files['commonFile'], fields)
+            Business.FileBiz.storeFile(files['commonFile'], fields, sessionUser)
                 .then((created: any) => {
                     Response.Utils.prepareResponse(response, Response.SuccessResponseBuilder
                         .get()
@@ -92,7 +93,7 @@ namespace Resources {
         });
     }
 
-    export function deleteFile(request: express.Request, response: express.Response) {
+    export function deleteFile(request: express.Request, response: express.Response, sessionUser: User) {
         if (!request || !request.params) {
             Response.Utils.prepareResponse(response, Response.ErrorResponseBuilder
                 .get()
@@ -100,7 +101,7 @@ namespace Resources {
             return response.end();
         }
         let fileId = request.params.fileId;
-        Business.FileBiz.deleteFile(fileId)
+        Business.FileBiz.deleteFile(fileId, sessionUser)
             .then((file: any) => {
                 Response.Utils.prepareResponse(response, Response.SuccessResponseBuilder.get()
                     .withBody({

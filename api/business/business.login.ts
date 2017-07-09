@@ -36,7 +36,7 @@ export namespace LoginBiz {
 
         static signAndGenerateToken(user: User): string {
             return sign(user, config.security.tokenSecret, {
-                expiresIn: config.security.expirationTime
+                expiresIn: config.security.tokenExpiration
             });
         }
 

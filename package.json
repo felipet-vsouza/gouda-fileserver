@@ -5,8 +5,10 @@
   "main": "server.js",
   "scripts": {
     "start": "node ~/Documents/github/gouda-fileserver/dist/server.js",
+    "start-db": "mongod --dbpath ~/Documents/mongodb/bin/data/db",
     "test": "mocha dist/test/*.js",
     "test-debug": "mocha dist/test/*.js --debug-brk",
+    "idkwid": "killall node",
     "build": "gulp"
   },
   "repository": {

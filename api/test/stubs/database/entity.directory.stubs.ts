@@ -14,7 +14,8 @@ export class DirectoryDAO {
             name: 'root',
             path: '/home/user/Documents/root',
             private: false,
-            superdirectoryId: undefined
+            superdirectoryId: undefined,
+            ownerId: 1
         },
         {
             _id: 2,
@@ -22,7 +23,8 @@ export class DirectoryDAO {
             name: 'subfolder1',
             path: '/home/user/Documents/root/subfolder1',
             private: false,
-            superdirectoryId: 1
+            superdirectoryId: 1,
+            ownerId: 1
         },
         {
             _id: 3,
@@ -30,7 +32,8 @@ export class DirectoryDAO {
             name: 'other subfolder',
             path: '/home/user/Documents/root/other subfolder',
             private: false,
-            superdirectoryId: 1
+            superdirectoryId: 1,
+            ownerId: 2
         }
     ];
 

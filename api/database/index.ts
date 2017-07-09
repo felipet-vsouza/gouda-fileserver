@@ -1,6 +1,9 @@
 import * as mongoose from 'mongoose';
 import * as Utils from './../utils';
 import { Configuration } from './../config/config.api';
+import { UserEntity } from './entity.user';
+import { DirectoryEntity } from './entity.directory';
+import { FileEntity } from './entity.file';
 
 let config: Configuration.IConfiguration = require('./../config/config.json');
 
@@ -18,6 +21,8 @@ export namespace Database {
                 if (config.database.clearDatabase) {
                     mongoose.connection.db.dropDatabase();
                 }
+                registerDocuments();
+
             })
             .catch((reason: any) => {
                 throw 'Failed to connect to database.';
@@ -26,6 +31,21 @@ export namespace Database {
 
     export function disconnect() {
         mongoose.disconnect();
+    }
+
+    function registerDocuments() {
+        UserEntity.get().register();
+        DirectoryEntity.get().register();
+        FileEntity.get().register();
+    }
+
+}
+
+export namespace Entity {
+
+    export interface EntityMapper<T extends mongoose.Document> {
+        register(): void;
+        document(): mongoose.Model<T>;
     }
 
 }

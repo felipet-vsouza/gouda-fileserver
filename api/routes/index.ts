@@ -28,7 +28,7 @@ export namespace Routes {
                     return Business.UserBiz.seedDatabase();
                 })
                 .then(() => resolve(http.createServer(application)))
-                .catch(() => reject());
+                .catch((reason: any) => reject(reason));
         });
     }
 

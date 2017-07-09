@@ -4,6 +4,7 @@ import * as proxyquire from 'proxyquire';
 import * as chai from 'chai';
 import { Logger } from './../utils';
 import { MappedUser } from './../response';
+import { User } from './../database/entity.user';
 
 let business = proxyquire('./../business/business.user',
     {

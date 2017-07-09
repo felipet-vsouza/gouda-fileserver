@@ -3,7 +3,7 @@
         "hostPath": "/home/felps/Documents/gouda/host/root",
         "temporaryUploadPath": "/home/felps/Documents/gouda/temp",
         "ports": {
-            "fileserver": 8080
+            "fileserver": 9355
         }
     },
     "database": {
@@ -19,6 +19,6 @@
         "key": "gouda tastes marvelously good",
         "adminPassword": "welcome1",
         "tokenSecret": "cheeseisbetterthanbeets",
-        "expirationTime": 15
+        "tokenExpiration": "1h"
     }
 }

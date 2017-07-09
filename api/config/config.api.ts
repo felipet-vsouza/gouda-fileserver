@@ -32,7 +32,7 @@ export namespace Configuration {
         key: string;
         adminPassword: string;
         tokenSecret: string;
-        expirationTime: number;
+        tokenExpiration: number;
     }
 
 }

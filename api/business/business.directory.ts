@@ -1,5 +1,6 @@
 import { Directory, DirectoryDAO, DirectoryBuilder } from './../database/entity.directory';
 import { File, FileDAO } from './../database/entity.file';
+import { User } from './../database/entity.user';
 import { ObjectID } from 'mongodb';
 import { join } from 'path';
 import { Configuration } from './../config/config.api';
@@ -23,7 +24,7 @@ export namespace DirectoryBiz {
         });
     }
 
-    export function getDirectoryAndFiles(directoryId: any): Promise<Directory> {
+    export function getDirectoryAndFiles(directoryId: any, sessionUser: User): Promise<Directory> {
         return new Promise<Directory>((resolve: Function, reject: Function) => {
             if (directoryId && !Utils.Validation.isInteger(directoryId)) {
                 return reject(`The value ${directoryId} is not valid as an id.`);
@@ -37,17 +38,25 @@ export namespace DirectoryBiz {
                     if (!directory) {
                         return reject(`No directory with id ${directoryId} could be found.`);
                     }
+                    if (directory.private && directory.ownerId !== sessionUser.userId) {
+                        return reject(`Forbidden action: you are not the owner of this private directory.`);
+                    }
                     directoryAndFiles.directory = directory;
                     return FileDAO.findByDirectoryId(directory._id);
                 })
                 .then((files: File[]) => {
-                    directoryAndFiles.files = files;
+                    directoryAndFiles.files = files
+                        .filter((file: File) =>
+                            !file.private || file.ownerId === sessionUser.userId);
                     return DirectoryDAO.findSubdirectories(directoryAndFiles.directory);
                 })
                 .then((subdirectories: Directory[]) => {
                     directoryAndFiles.directory = DirectoryMapper.map(directoryAndFiles.directory);
                     directoryAndFiles.files = directoryAndFiles.files.map(FileMapper.map);
-                    directoryAndFiles.subdirectories = subdirectories.map(DirectoryMapper.map);
+                    directoryAndFiles.subdirectories = subdirectories
+                        .filter((subdirectory: Directory) =>
+                            !subdirectory.private || subdirectory.ownerId === sessionUser.userId)
+                        .map(DirectoryMapper.map);
                     resolve(directoryAndFiles);
                 })
                 .catch((reason: any) => {
@@ -56,7 +65,7 @@ export namespace DirectoryBiz {
         });
     }
 
-    export function createDirectory(directory: any): Promise<string | Directory> {
+    export function createDirectory(directory: any, sessionUser: User): Promise<string | Directory> {
         return new Promise<string | Directory>((resolve: Function, reject: Function) => {
             if (!DirectoryBusiness.typeCheck(directory) ||
                 !Utils.Validation.isInteger(directory.superdirectoryId) ||
@@ -80,6 +89,7 @@ export namespace DirectoryBiz {
                         .withPath(definitelyDirectory.path)
                         .withPrivate(definitelyDirectory.private)
                         .withSuperdirectory(definitelyDirectory.superdirectoryId)
+                        .withOwner(sessionUser.userId)
                         .build();
                     return DirectoryDAO.create(directoryToCreate);
                 })
@@ -90,7 +100,7 @@ export namespace DirectoryBiz {
         });
     }
 
-    export function removeDirectory(id: any): Promise<Directory> {
+    export function removeDirectory(id: any, sessionUser: User): Promise<Directory> {
         return new Promise<Directory>((resolve: Function, reject: Function) => {
             if (!id || !Utils.Validation.isInteger(id)) {
                 return reject('Invalid id: this request did not meet the expectations.');
@@ -101,7 +111,10 @@ export namespace DirectoryBiz {
             informationForDirectory(id)
                 .then((directory: Directory) => {
                     if (!directory) {
-                        reject(`No Directory with id ${id} could be found.`);
+                        return reject(`No Directory with id ${id} could be found.`);
+                    }
+                    if (directory.ownerId !== sessionUser.userId) {
+                        return reject(`Forbidden action: directories can only be removed by their owners.`);
                     }
                     Utils.FileSystem.removeDirectory(directory.path);
                     DirectoryBusiness.removeDirectoryAndSubdirectories(directory);

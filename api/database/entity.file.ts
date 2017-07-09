@@ -1,11 +1,12 @@
 import * as mongoose from 'mongoose';
 import { ObjectID } from 'mongodb';
 import { Configuration } from './../config/config.api';
+import { Entity } from './';
 import * as autoIncrement from 'mongoose-sequence';
 
 let config: Configuration.IConfiguration = require('./../config/config.json');
 
-interface IFile extends mongoose.Document {
+export interface IFile extends mongoose.Document {
     fileId: number;
     uploaded: Date;
     name: string;
@@ -13,35 +14,57 @@ interface IFile extends mongoose.Document {
     private: boolean;
     size: number;
     directoryId: number;
+    ownerId: number;
 }
 
-let _schema: mongoose.Schema = new mongoose.Schema({
-    uploaded: {
-        type: mongoose.Schema.Types.Date,
-        default: Date.now
-    },
-    name: {
-        type: mongoose.Schema.Types.String,
-        required: true
-    },
-    path: {
-        type: mongoose.Schema.Types.String,
-        required: true
-    },
-    private: mongoose.Schema.Types.Boolean,
-    size: {
-        type: mongoose.Schema.Types.Number,
-        required: true
-    },
-    directoryId: {
-        type: mongoose.Schema.Types.Number,
-        ref: 'Directory'
+export class FileEntity implements Entity.EntityMapper<IFile> {
+
+    private static instance = new FileEntity();
+    private _model: mongoose.Model<IFile>;
+
+    public static get() {
+        return FileEntity.instance;
     }
-});
 
-_schema.plugin(autoIncrement, { inc_field: 'fileId' });
+    public register() {
+        let _schema: mongoose.Schema = new mongoose.Schema({
+            uploaded: {
+                type: mongoose.Schema.Types.Date,
+                default: Date.now
+            },
+            name: {
+                type: mongoose.Schema.Types.String,
+                required: true
+            },
+            path: {
+                type: mongoose.Schema.Types.String,
+                required: true
+            },
+            private: mongoose.Schema.Types.Boolean,
+            size: {
+                type: mongoose.Schema.Types.Number,
+                required: true
+            },
+            directoryId: {
+                type: mongoose.Schema.Types.Number,
+                ref: 'Directory'
+            },
+            ownerId: {
+                type: mongoose.Schema.Types.Number,
+                ref: 'User'
+            }
+        });
 
-let _model: mongoose.Model<IFile> = mongoose.model<IFile>('File', _schema);
+        _schema.plugin(autoIncrement, { inc_field: 'fileId' });
+
+        this._model = mongoose.model<IFile>('File', _schema);
+    }
+
+    public document() {
+        return this._model;
+    }
+
+}
 
 export class File {
 
@@ -52,6 +75,7 @@ export class File {
     private: boolean;
     size: number;
     directoryId: number;
+    ownerId: number;
 
     constructor(file?: IFile) {
         if (file) {
@@ -62,6 +86,7 @@ export class File {
             this.private = file.private;
             this.size = file.size;
             this.directoryId = file.directoryId;
+            this.ownerId = file.ownerId;
         }
     }
 
@@ -102,6 +127,11 @@ export class FileBuilder {
         return this;
     }
 
+    withOwner(ownerId: number) {
+        this.file.ownerId = ownerId;
+        return this;
+    }
+
     build() {
         return this.file;
     }
@@ -112,7 +142,7 @@ export class FileDAO {
 
     static create(file: File): Promise<File> {
         return new Promise<File>((resolve: Function, reject: Function) => {
-            _model.create(file)
+            FileEntity.get().document().create(file)
                 .then((file: IFile) => {
                     resolve(new File(file));
                 })
@@ -122,7 +152,7 @@ export class FileDAO {
 
     static findById(id: number): Promise<File> {
         return new Promise<File>((resolve: Function, reject: Function) => {
-            _model.find({
+            FileEntity.get().document().find({
                 fileId: id
             })
                 .exec()
@@ -135,7 +165,7 @@ export class FileDAO {
 
     static findAll(): Promise<File[]> {
         return new Promise<File[]>((resolve: Function, reject: Function) => {
-            _model.find({})
+            FileEntity.get().document().find({})
                 .exec()
                 .then((files: IFile[]) => {
                     resolve(files.map((file: IFile) => new File(file)));
@@ -146,7 +176,7 @@ export class FileDAO {
 
     static findByDirectoryId(directoryId: number): Promise<File[]> {
         return new Promise<File[]>((resolve: Function, reject: Function) => {
-            _model.find({
+            FileEntity.get().document().find({
                 directoryId: directoryId
             })
                 .exec()
@@ -157,7 +187,7 @@ export class FileDAO {
 
     static removeFile(id: number): Promise<any> {
         return new Promise<any>((resolve: Function, reject: Function) => {
-            _model.find({
+            FileEntity.get().document().find({
                 fileId: id
             })
                 .remove()

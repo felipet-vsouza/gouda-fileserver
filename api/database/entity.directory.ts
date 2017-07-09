@@ -1,42 +1,66 @@
 import * as mongoose from 'mongoose';
 import { ObjectID } from 'mongodb';
 import { Configuration } from './../config/config.api';
+import { Entity } from './';
 import * as autoIncrement from 'mongoose-sequence';
 
 let config: Configuration.IConfiguration = require('./../config/config.json');
 
-interface IDirectory extends mongoose.Document {
+export interface IDirectory extends mongoose.Document {
     _id: number;
     created: Date;
     name: string;
     path: string;
     private: boolean;
     superdirectoryId: number;
+    ownerId: number;
 }
 
-let _schema: mongoose.Schema = new mongoose.Schema({
-    _id: mongoose.Schema.Types.Number,
-    created: {
-        type: mongoose.Schema.Types.Date,
-        default: Date.now
-    },
-    name: {
-        type: mongoose.Schema.Types.String
-    },
-    path: {
-        type: mongoose.Schema.Types.String
-    },
-    private: mongoose.Schema.Types.Boolean,
-    superdirectoryId: {
-        type: mongoose.Schema.Types.Number,
-        ref: 'Directory',
-        required: false
+export class DirectoryEntity implements Entity.EntityMapper<IDirectory> {
+
+    private static instance = new DirectoryEntity();
+    private _model: mongoose.Model<IDirectory>;
+
+    public static get() {
+        return DirectoryEntity.instance;
     }
-}, { _id: false });
 
-_schema.plugin(autoIncrement);
+    public register() {
+        let _schema: mongoose.Schema = new mongoose.Schema({
+            _id: mongoose.Schema.Types.Number,
+            created: {
+                type: mongoose.Schema.Types.Date,
+                default: Date.now
+            },
+            name: {
+                type: mongoose.Schema.Types.String
+            },
+            path: {
+                type: mongoose.Schema.Types.String
+            },
+            private: mongoose.Schema.Types.Boolean,
+            superdirectoryId: {
+                type: mongoose.Schema.Types.Number,
+                ref: 'Directory',
+                required: false
+            },
+            ownerId: {
+                type: mongoose.Schema.Types.Number,
+                ref: 'User',
+                required: false
+            }
+        }, { _id: false });
 
-let _model: mongoose.Model<IDirectory> = mongoose.model<IDirectory>('Directory', _schema);
+        _schema.plugin(autoIncrement);
+
+        this._model = mongoose.model<IDirectory>('Directory', _schema);
+    }
+
+    public document() {
+        return this._model;
+    }
+
+}
 
 export class Directory {
 
@@ -46,6 +70,7 @@ export class Directory {
     path: string;
     private: boolean;
     superdirectoryId: number;
+    ownerId: number;
 
     constructor(directory?: IDirectory) {
         if (directory) {
@@ -55,6 +80,7 @@ export class Directory {
             this.path = directory.path;
             this.private = directory.private;
             this.superdirectoryId = directory.superdirectoryId;
+            this.ownerId = directory.ownerId;
         }
     }
 
@@ -90,6 +116,11 @@ export class DirectoryBuilder {
         return this;
     }
 
+    withOwner(ownerId: number) {
+        this.directory.ownerId = ownerId;
+        return this;
+    }
+
     build() {
         return this.directory;
     }
@@ -100,7 +131,7 @@ export class DirectoryDAO {
 
     static create(directory: Directory): Promise<Directory> {
         return new Promise<Directory>((resolve: Function, reject: Function) => {
-            _model.create(directory)
+            DirectoryEntity.get().document().create(directory)
                 .then((directory: IDirectory) => {
                     resolve(new Directory(directory));
                 })
@@ -110,7 +141,7 @@ export class DirectoryDAO {
 
     static findById(id: number): Promise<Directory> {
         return new Promise<Directory>((resolve: Function, reject: Function) => {
-            _model.findById(id)
+            DirectoryEntity.get().document().findById(id)
                 .exec()
                 .then((directory: IDirectory) => {
                     resolve(directory ? new Directory(directory) : undefined);
@@ -121,7 +152,7 @@ export class DirectoryDAO {
 
     static findAll(): Promise<Directory[]> {
         return new Promise<Directory[]>((resolve: Function, reject: Function) => {
-            _model.find({})
+            DirectoryEntity.get().document().find({})
                 .exec()
                 .then((files: IDirectory[]) => {
                     resolve(files.map((directory: IDirectory) => new Directory(directory)));
@@ -132,7 +163,7 @@ export class DirectoryDAO {
 
     static findSubdirectories(directory: Directory): Promise<Directory[]> {
         return new Promise<Directory[]>((resolve: Function, reject: Function) => {
-            _model.find({
+            DirectoryEntity.get().document().find({
                 superdirectoryId: directory._id
             })
                 .exec()
@@ -145,7 +176,7 @@ export class DirectoryDAO {
 
     static removeDirectory(directory: Directory): Promise<any> {
         return new Promise<Directory[]>((resolve: Function, reject: Function) => {
-            _model.find({
+            DirectoryEntity.get().document().find({
                 _id: directory._id
             })
                 .remove()
@@ -157,7 +188,7 @@ export class DirectoryDAO {
 
     static findRoot(): Promise<Directory> {
         return new Promise<Directory>((resolve: Function, reject: Function) => {
-            _model.find({
+            DirectoryEntity.get().document().find({
                 name: 'root'
             })
                 .exec()

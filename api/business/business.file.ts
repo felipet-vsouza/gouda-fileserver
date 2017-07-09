@@ -1,5 +1,6 @@
 import { File, FileDAO, FileBuilder } from './../database/entity.file';
 import { Directory, DirectoryDAO } from './../database/entity.directory';
+import { User } from './../database/entity.user';
 import { FileMapper, MappedFile } from './../response';
 import { ObjectID } from 'mongodb';
 import { join } from 'path';
@@ -8,7 +9,7 @@ import * as formidable from 'formidable';
 
 export namespace FileBiz {
 
-    export function getFile(fileId: any): Promise<MappedFile> {
+    export function getFile(fileId: any, sessionUser: User): Promise<MappedFile> {
         let file: File;
         return new Promise<MappedFile>((resolve: Function, reject: Function) => {
             if (!fileId || !Utils.Validation.isInteger(fileId)) {
@@ -19,6 +20,9 @@ export namespace FileBiz {
                     if (!found) {
                         return reject(`No file with id ${fileId} could be found.`);
                     }
+                    if (found.private && found.ownerId !== sessionUser.userId) {
+                        return reject(`Forbidden action: a private file can only be downloaded by its owner.`);
+                    }
                     file = found;
                     return Utils.FileSystem.checkIfFileExists(file.path);
                 })
@@ -27,7 +31,7 @@ export namespace FileBiz {
         });
     }
 
-    export function storeFile(file: formidable.File, fileData: any): Promise<MappedFile> {
+    export function storeFile(file: formidable.File, fileData: any, sessionUser: User): Promise<MappedFile> {
         return new Promise<MappedFile>((resolve: Function, reject: Function) => {
             if (!FileBusiness.typeCheck(fileData) || !Utils.Validation.isInteger(fileData.directoryId)) {
                 return reject('Invalid File: the body of this request did not meet the expectations.');
@@ -50,6 +54,7 @@ export namespace FileBiz {
                         .withPrivate(definetlyFile.private ? definetlyFile.private : false)
                         .withSize(file.size)
                         .withDirectory(directory._id)
+                        .withOwner(sessionUser.userId)
                         .build();
                     return FileDAO.create(fileToStore);
                 })
@@ -62,7 +67,7 @@ export namespace FileBiz {
         });
     }
 
-    export function deleteFile(fileId: any): Promise<MappedFile> {
+    export function deleteFile(fileId: any, sessionUser: User): Promise<MappedFile> {
         return new Promise<MappedFile>((resolve: Function, reject: Function) => {
             if (!fileId || !Utils.Validation.isInteger(fileId)) {
                 return reject('Invalid id: this request did not meet the expectations.');
@@ -70,7 +75,10 @@ export namespace FileBiz {
             FileDAO.findById(parseInt(fileId))
                 .then((found: File) => {
                     if (!found) {
-                        reject(`No file with id ${fileId} could be found.`);
+                        return reject(`No file with id ${fileId} could be found.`);
+                    }
+                    if (found.ownerId !== sessionUser.userId) {
+                        return reject(`Forbidden action: files can only be removed by their owners.`);
                     }
                     let file = found;
                     Utils.FileSystem.removeFile(file.path);

@@ -4,9 +4,10 @@ import { Response } from './';
 
 export namespace Utils {
 
-    export function prepareResponse(response: http.ServerResponse, responseData: Response) {
+    export function prepareResponse(response: http.ServerResponse, responseData: Response): PreparedResponse {
         response.writeHead(responseData.status, { 'Content-Type': 'application/json' });
         response.write(JSON.stringify(responseData));
+        return new PreparedResponse(response);
     }
 
     export function prepareFileResponse(filename: string, length: number, response: http.ServerResponse) {
@@ -21,6 +22,20 @@ export namespace Utils {
     export function pipeReadStream(filepath: string, response: http.ServerResponse) {
         fs.createReadStream(filepath)
             .pipe(response);
+    }
+
+    export class PreparedResponse {
+
+        private response: http.ServerResponse;
+
+        constructor(response: http.ServerResponse) {
+            this.response = response;
+        }
+
+        send() {
+            this.response.end();
+        }
+
     }
 
 }

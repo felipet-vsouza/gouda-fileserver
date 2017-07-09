@@ -1,11 +1,12 @@
 import * as mongoose from 'mongoose';
 import { ObjectID } from 'mongodb';
 import { Configuration } from './../config/config.api';
+import { Entity } from './';
 import * as autoIncrement from 'mongoose-sequence';
 
 let config: Configuration.IConfiguration = require('./../config/config.json');
 
-interface IUser extends mongoose.Document {
+export interface IUser extends mongoose.Document {
     userId: number;
     created: Date;
     name: string;
@@ -13,29 +14,46 @@ interface IUser extends mongoose.Document {
     password: string;
 }
 
-let _schema: mongoose.Schema = new mongoose.Schema({
-    created: {
-        type: mongoose.Schema.Types.Date,
-        default: Date.now
-    },
-    name: {
-        type: mongoose.Schema.Types.String,
-        required: true
-    },
-    username: {
-        type: mongoose.Schema.Types.String,
-        required: true,
-        unique: true
-    },
-    password: {
-        type: mongoose.Schema.Types.String,
-        required: true
+export class UserEntity implements Entity.EntityMapper<IUser> {
+
+    private static instance = new UserEntity();
+    private _model: mongoose.Model<IUser>;
+
+    public static get() {
+        return UserEntity.instance;
     }
-});
 
-_schema.plugin(autoIncrement, { inc_field: 'userId' });
+    public register() {
+        let _schema: mongoose.Schema = new mongoose.Schema({
+            created: {
+                type: mongoose.Schema.Types.Date,
+                default: Date.now
+            },
+            name: {
+                type: mongoose.Schema.Types.String,
+                required: true
+            },
+            username: {
+                type: mongoose.Schema.Types.String,
+                required: true,
+                unique: true
+            },
+            password: {
+                type: mongoose.Schema.Types.String,
+                required: true
+            }
+        });
 
-let _model: mongoose.Model<IUser> = mongoose.model<IUser>('User', _schema);
+        _schema.plugin(autoIncrement, { inc_field: 'userId' });
+
+        this._model = mongoose.model<IUser>('User', _schema);
+    }
+
+    public document() {
+        return this._model;
+    }
+
+}
 
 export class User {
 
@@ -92,7 +110,7 @@ export class UserDAO {
 
     static create(user: User): Promise<User> {
         return new Promise<User>((resolve: Function, reject: Function) => {
-            _model.create(user)
+            UserEntity.get().document().create(user)
                 .then((user: IUser) => {
                     resolve(new User(user));
                 })
@@ -102,7 +120,7 @@ export class UserDAO {
 
     static findById(id: number): Promise<User> {
         return new Promise<User>((resolve: Function, reject: Function) => {
-            _model.find({
+            UserEntity.get().document().find({
                 userId: id
             })
                 .exec()
@@ -115,7 +133,7 @@ export class UserDAO {
 
     static findAll(): Promise<User[]> {
         return new Promise<User[]>((resolve: Function, reject: Function) => {
-            _model.find({})
+            UserEntity.get().document().find({})
                 .exec()
                 .then((users: IUser[]) => {
                     resolve(users.map((user: IUser) => new User(user)));
@@ -126,7 +144,7 @@ export class UserDAO {
 
     static findByUsername(username: string): Promise<User> {
         return new Promise<User>((resolve: Function, reject: Function) => {
-            _model.find({
+            UserEntity.get().document().find({
                 username: username
             })
                 .exec()
@@ -143,7 +161,7 @@ export class UserDAO {
 
     static usernameExists(username: string): Promise<boolean> {
         return new Promise<boolean>((resolve: Function, reject: Function) => {
-            _model.find({
+            UserEntity.get().document().find({
                 username: username
             })
                 .exec()
@@ -154,7 +172,7 @@ export class UserDAO {
 
     static removeById(id: number): Promise<any> {
         return new Promise<any>((resolve: Function, reject: Function) => {
-            _model.find({
+            UserEntity.get().document().find({
                 userId: id
             })
                 .remove()

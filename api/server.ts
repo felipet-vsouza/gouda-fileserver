@@ -10,20 +10,37 @@ import * as Utils from './utils';
 
     Routes.createServer()
         .then((serverInstance: Server) => {
+            serverInstance.on('listening', () => {
+                Utils.Notifier.notifyInfo('Hurray, Gouda started successfully!');
+                Utils.Logger.logAndNotify(`Gouda has started successfully.`);
+                Utils.Logger.logAndNotify(`Listening on port ${serverConfig.server.ports.fileserver}`);
+            });
             serverInstance.listen(serverConfig.server.ports.fileserver);
-            Utils.Notifier.notifyInfo('Hurray, Gouda started successfully!');
             process
-                .on('exit', onExit)
-                .on('SIGINT', onExit)
-                .on('uncaughtException', onExit);
+                .on('exit', onExit(false, serverInstance))
+                .on('SIGINT', onExit(true))
+                .on('uncaughtException', onExit(true));
         })
-        .catch(() => {
+        .catch((message: any) => {
             Utils.Notifier.notifyError('Damn, Gouda was unable to accomplish its start :(');
+            Utils.Logger.errorAndNotify(`Gouda couldn't start. Message: ${message}`);
             process.exit(1);
         });
 
 })();
 
-function onExit() {
-    Database.disconnect();
+function onExit(isError: boolean, server?: Server): Function {
+    return isError ?
+        () => {
+            Database.disconnect();
+            if (server) {
+                server.removeAllListeners();
+            }
+            Utils.Notifier.notifyInfo('Gouda is shutting down. Fare thee well, Stranger.');
+            Utils.Logger.logAndNotify(`Shutting Gouda down.`);
+        } :
+        (message: any) => {
+            Utils.Notifier.notifyInfo('Oh oh! Gouda had an unexpected problem!');
+            Utils.Logger.logAndNotify(`There was an unexpected error. Message: ${message}`);
+        };
 }
