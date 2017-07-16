@@ -414,4 +414,74 @@ describe('FileBiz', () => {
 
     });
 
+    /**
+     * Function updateFile
+     */
+    describe('updateFile', () => {
+
+        it('should return the successfully updated file', (done: MochaDone) => {
+            let toUpdate = {
+                name: 'waka waka eh eh.jpg',
+                private: false
+            };
+            business.FileBiz.updateFile(2, toUpdate, users[1])
+                .then((updated: MappedFile) => {
+                    chai.assert(updated.id === 2, `Id ${updated.id} is not equal to 2`);
+                    chai.assert(updated.name === 'waka waka eh eh.jpg', `Name ${updated.name} is not equal to 'waka waka eh eh.jpg'`);
+                    chai.assert(updated.private === false, `Private ${updated.private} is not equal to false`);
+                    chai.assert(typeof updated.uploaded === 'object', `typeof Uploaded ${updated.uploaded} is not equal to 'object'`);
+                    chai.assert(updated.size === 2048, `Size ${updated.size} is not equal to 2048`);
+                    done();
+                });
+        });
+
+        it('should reject when non-owner tryies to update a file', (done: MochaDone) => {
+            let toUpdate = {
+                name: 'integration_cereal_bar.feature'
+            };
+            business.FileBiz.updateFile(2, toUpdate, users[0])
+                .catch((reason: any) => {
+                    chai.assert(reason === 'Forbidden action: files can only be updated by their owners.', `Reason message didn't meet the expectations.`);
+                    done();
+                });
+        });
+
+        it('should reject when trying to update a file with no file data specified', (done: MochaDone) => {
+            let toUpdate = undefined;
+            business.FileBiz.updateFile(2, toUpdate, users[1])
+                .catch((reason: any) => {
+                    chai.assert(reason === 'Invalid body: this request has no content to update.', `Reason message didn't meet the expectations.`);
+                    done();
+                });
+        });
+
+        it('should reject when id is 0, undefined, false, NaN or null', (done: MochaDone) => {
+            let toUpdate = {
+                name: 'integration_cereal_bar.feature'
+            };
+            business.FileBiz.updateFile(0, toUpdate, users[1])
+                .catch((reason: string) => {
+                    chai.assert(reason === 'Invalid id: this request did not meet the expectations.', `Reason message didn't meet the expectations`);
+                    return business.FileBiz.updateFile(undefined, toUpdate, users[1]);
+                })
+                .catch((reason: string) => {
+                    chai.assert(reason === 'Invalid id: this request did not meet the expectations.', `Reason message didn't meet the expectations`);
+                    return business.FileBiz.updateFile(false, toUpdate, users[1]);
+                })
+                .catch((reason: string) => {
+                    chai.assert(reason === 'Invalid id: this request did not meet the expectations.', `Reason message didn't meet the expectations`);
+                    return business.FileBiz.updateFile(NaN, toUpdate, users[1]);
+                })
+                .catch((reason: string) => {
+                    chai.assert(reason === 'Invalid id: this request did not meet the expectations.', `Reason message didn't meet the expectations`);
+                    return business.FileBiz.updateFile(null, toUpdate, users[1]);
+                })
+                .catch((reason: string) => {
+                    chai.assert(reason === 'Invalid id: this request did not meet the expectations.', `Reason message didn't meet the expectations`);
+                    done();
+                });
+        });
+
+    });
+
 });

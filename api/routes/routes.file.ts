@@ -27,6 +27,11 @@ export namespace FileRoutes {
                 Resources.deleteFile(request, response, sessionUser);
             });
         });
+        router.put('/:fileId', (request: express.Request, response: express.Response) => {
+            Middleware.AuthenticationMiddleware.authenticate(request, response, (sessionUser: User) => {
+                Resources.updateFile(request, response, sessionUser);
+            });
+        });
         return router;
     }
 }
@@ -106,6 +111,32 @@ namespace Resources {
                 Response.Utils.prepareResponse(response, Response.SuccessResponseBuilder.get()
                     .withBody({
                         removedFile: file
+                    })
+                    .build());
+                response.end();
+            })
+            .catch((error: string) => {
+                Response.Utils.prepareResponse(response, Response.ErrorResponseBuilder.get()
+                    .withMessage(error)
+                    .build());
+                response.end();
+            });
+    }
+
+    export function updateFile(request: express.Request, response: express.Response, sessionUser: User) {
+        if (!request || !request.body || !request.body.fileId) {
+            Response.Utils.prepareResponse(response, Response.ErrorResponseBuilder
+                .get()
+                .build());
+            return response.end();
+        }
+        let body = request.body;
+        let fileId = body.fileId;
+        Business.FileBiz.updateFile(fileId, body, sessionUser)
+            .then((file: any) => {
+                Response.Utils.prepareResponse(response, Response.SuccessResponseBuilder.get()
+                    .withBody({
+                        updatedFile: file
                     })
                     .build());
                 response.end();

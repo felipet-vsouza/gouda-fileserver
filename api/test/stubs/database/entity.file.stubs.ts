@@ -67,6 +67,12 @@ export class FileDAO {
         });
     }
 
+    static update(file: File): Promise<File> {
+        return new Promise<File>((resolve: Function, reject: Function) => {
+            resolve(file);
+        });
+    }
+
     static findById(id: number): Promise<File> {
         return new Promise<File>((resolve: Function, reject: Function) => {
             return FileDAO.list.some((file: File) => file.fileId === id) ?

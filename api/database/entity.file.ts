@@ -102,6 +102,11 @@ export class FileBuilder {
         return this;
     }
 
+    withPreviousContent(file: File) {
+        this.file = file;
+        return this;
+    }
+
     withName(name: string) {
         this.file.name = name;
         return this;
@@ -143,6 +148,17 @@ export class FileDAO {
     static create(file: File): Promise<File> {
         return new Promise<File>((resolve: Function, reject: Function) => {
             FileEntity.get().document().create(file)
+                .then((file: IFile) => {
+                    resolve(new File(file));
+                })
+                .catch((reason: any) => reject(reason));
+        });
+    }
+
+    static update(file: File): Promise<File> {
+        return new Promise<File>((resolve: Function, reject: Function) => {
+            FileEntity.get().document().findByIdAndUpdate(file.fileId, file)
+                .exec()
                 .then((file: IFile) => {
                     resolve(new File(file));
                 })

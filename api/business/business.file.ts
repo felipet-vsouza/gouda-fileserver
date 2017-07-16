@@ -89,6 +89,33 @@ export namespace FileBiz {
         });
     }
 
+    export function updateFile(fileId: any, fileData: any, sessionUser: User): Promise<MappedFile> {
+        return new Promise<MappedFile>((resolve: Function, reject: Function) => {
+            if (!fileId || !Utils.Validation.isInteger(fileId)) {
+                return reject('Invalid id: this request did not meet the expectations.');
+            }
+            if (!fileData) {
+                return reject('Invalid body: this request has no content to update.');
+            }
+            FileDAO.findById(parseInt(fileId))
+                .then((found: File) => {
+                    if (found.ownerId !== sessionUser.userId) {
+                        return reject('Forbidden action: files can only be updated by their owners.');
+                    }
+                    let toUpdate: File = new FileBuilder()
+                        .withPreviousContent(found)
+                        .withName(fileData.name ? fileData.name : found.name)
+                        .withPrivate(Utils.Validation.isBoolean(fileData.private) ? fileData.private : found.private)
+                        .build();
+                    return FileDAO.update(toUpdate);
+                })
+                .then((updated: File) => {
+                    return resolve(FileMapper.map(updated));
+                })
+                .catch((cause: any) => reject(cause));
+        });
+    }
+
     class FileBusiness {
         static typeCheck(object: any): boolean {
             return 'directoryId' in object;
