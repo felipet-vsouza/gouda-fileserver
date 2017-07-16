@@ -36,6 +36,9 @@ export namespace FileBiz {
             if (!FileBusiness.typeCheck(fileData) || !Utils.Validation.isInteger(fileData.directoryId)) {
                 return reject('Invalid File: the body of this request did not meet the expectations.');
             }
+            if (FileBusiness.isAnInvalidName(file.name)) {
+                return reject(`Invalid File: the name of this file doesn't meet the requirements.`);
+            }
             let definetlyFile: File = fileData;
             DirectoryDAO.findById(definetlyFile.directoryId)
                 .then(async (directory: Directory) => {
@@ -97,6 +100,9 @@ export namespace FileBiz {
             if (!fileData) {
                 return reject('Invalid body: this request has no content to update.');
             }
+            if (!!fileData.name && FileBusiness.isAnInvalidName(fileData.name)) {
+                return reject(`Invalid File: the name of this file doesn't meet the requirements.`);
+            }
             FileDAO.findById(parseInt(fileId))
                 .then((found: File) => {
                     if (found.ownerId !== sessionUser.userId) {
@@ -119,6 +125,14 @@ export namespace FileBiz {
     class FileBusiness {
         static typeCheck(object: any): boolean {
             return 'directoryId' in object;
+        }
+
+
+        static isAnInvalidName(name: string) {
+            let isTooBig: boolean = name.length > 35;
+            let isTooShort: boolean = name.length < 1;
+            let hasInvalidCharacter: boolean = /^.*?(?=[\^#%&$@¨`´^~!,\*:<>\?/\{\|\}]).*$/g.test(name);
+            return isTooBig || isTooShort || hasInvalidCharacter;
         }
     }
 

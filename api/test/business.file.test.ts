@@ -291,6 +291,69 @@ describe('FileBiz', () => {
                 });
         });
 
+        it('should not store an invalid file whose name has more than 35 characters', (done: MochaDone) => {
+            let formidableFile: formidable.File = {
+                name: 'fifth-file-wannabe-but-my-name-is-too-long-which-makes-me-sad.yml',
+                size: 5120,
+                path: 'home/Felps/Documents/Gouda/temp',
+                type: '',
+                lastModifiedDate: new Date(),
+                toJSON: (): Object => {
+                    return undefined;
+                }
+            };
+            let fileData: any = {
+                directoryId: 666
+            };
+            business.FileBiz.storeFile(formidableFile, fileData, users[0])
+                .catch((reason: string) => {
+                    chai.assert(reason === `Invalid File: the name of this file doesn't meet the requirements.`, `Reason message didn't meet the expectations`);
+                    done();
+                });
+        });
+
+        it('should not store an invalid file whose name has invalid characters', (done: MochaDone) => {
+            let formidableFile: formidable.File = {
+                name: '17/07/1956-@hue.yml',
+                size: 5120,
+                path: 'home/Felps/Documents/Gouda/temp',
+                type: '',
+                lastModifiedDate: new Date(),
+                toJSON: (): Object => {
+                    return undefined;
+                }
+            };
+            let fileData: any = {
+                directoryId: 666
+            };
+            business.FileBiz.storeFile(formidableFile, fileData, users[0])
+                .catch((reason: string) => {
+                    chai.assert(reason === `Invalid File: the name of this file doesn't meet the requirements.`, `Reason message didn't meet the expectations`);
+                    done();
+                });
+        });
+
+        it('should not store an invalid file whose name is empty', (done: MochaDone) => {
+            let formidableFile: formidable.File = {
+                name: '',
+                size: 5120,
+                path: 'home/Felps/Documents/Gouda/temp',
+                type: '',
+                lastModifiedDate: new Date(),
+                toJSON: (): Object => {
+                    return undefined;
+                }
+            };
+            let fileData: any = {
+                directoryId: 666
+            };
+            business.FileBiz.storeFile(formidableFile, fileData, users[0])
+                .catch((reason: string) => {
+                    chai.assert(reason === `Invalid File: the name of this file doesn't meet the requirements.`, `Reason message didn't meet the expectations`);
+                    done();
+                });
+        });
+
     });
 
     /**
