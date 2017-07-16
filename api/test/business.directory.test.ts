@@ -282,8 +282,6 @@ describe('DirectoryBiz', () => {
         it('should reject when directory with non-integer id \'goudalicious\' is requested', (done: MochaDone) => {
             business.DirectoryBiz.removeDirectory('goudalicious', users[0])
                 .catch((reason: string) => {
-                    console.log('reason:', reason);
-                    console.log('expected:', 'Invalid id: this request did not meet the expectations.');
                     chai.assert(reason === 'Invalid id: this request did not meet the expectations.', `Reason message didn't meet the expectations`);
                     done();
                 });
