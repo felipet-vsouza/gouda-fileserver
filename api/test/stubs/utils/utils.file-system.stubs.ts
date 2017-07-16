@@ -16,4 +16,14 @@ export namespace FileSystem {
         });
     }
 
+    export function createDirectory(path: string) {
+        return new Promise<any>((resolve: Function, reject: Function) => {
+            resolve(undefined);
+        });
+    };
+
+    export function removeDirectory(path: string): any {
+        return undefined;
+    }
+
 }

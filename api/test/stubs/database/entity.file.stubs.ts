@@ -47,6 +47,16 @@ export class FileDAO {
             size: 4096,
             directoryId: 3,
             ownerId: 4
+        },
+        {
+            fileId: 5,
+            uploaded: new Date(),
+            name: 'The Fifth File.mov',
+            path: '/home/user/Documents/The Fifth File.mov',
+            private: true,
+            size: 5120,
+            directoryId: 4,
+            ownerId: 4
         }
     ];
 

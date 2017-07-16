@@ -61,19 +61,19 @@ describe('FileBiz', () => {
             business.FileBiz.getFile(0, users[0])
                 .catch((reason: string) => {
                     chai.assert(reason === 'Invalid id: this request did not meet the expectations.', `Reason message didn't meet the expectations`);
-                    return business.FileBiz.getFile(undefined);
+                    return business.FileBiz.getFile(undefined, users[0]);
                 })
                 .catch((reason: string) => {
                     chai.assert(reason === 'Invalid id: this request did not meet the expectations.', `Reason message didn't meet the expectations`);
-                    return business.FileBiz.getFile(false);
+                    return business.FileBiz.getFile(false, users[0]);
                 })
                 .catch((reason: string) => {
                     chai.assert(reason === 'Invalid id: this request did not meet the expectations.', `Reason message didn't meet the expectations`);
-                    return business.FileBiz.getFile(NaN);
+                    return business.FileBiz.getFile(NaN, users[0]);
                 })
                 .catch((reason: string) => {
                     chai.assert(reason === 'Invalid id: this request did not meet the expectations.', `Reason message didn't meet the expectations`);
-                    return business.FileBiz.getFile(null);
+                    return business.FileBiz.getFile(null, users[0]);
                 })
                 .catch((reason: string) => {
                     chai.assert(reason === 'Invalid id: this request did not meet the expectations.', `Reason message didn't meet the expectations`);
@@ -165,7 +165,7 @@ describe('FileBiz', () => {
             };
             business.FileBiz.storeFile(formidableFile, fileData, users[0])
                 .then((stored: MappedFile) => {
-                    chai.assert(stored.id === 5, `Id ${stored.id} is not equal to 5`);
+                    chai.assert(stored.id === 6, `Id ${stored.id} is not equal to 5`);
                     chai.assert(stored.name === 'fifth-file-wannabe.yml', `Name ${stored.name} is not equal to 'fifth-file-wannabe.yml'`);
                     chai.assert(stored.private === false, `Private ${stored.private} is not equal to false`);
                     chai.assert(stored.size === 5120, `Size ${stored.size} is not equal to 5120`);
@@ -190,7 +190,7 @@ describe('FileBiz', () => {
             };
             business.FileBiz.storeFile(formidableFile, fileData, users[0])
                 .then((stored: MappedFile) => {
-                    chai.assert(stored.id === 5, `Id ${stored.id} is not equal to 5`);
+                    chai.assert(stored.id === 6, `Id ${stored.id} is not equal to 5`);
                     chai.assert(stored.name === 'fifth-file-wannabe.yml', `Name ${stored.name} is not equal to 'fifth-file-wannabe.yml'`);
                     chai.assert(stored.private === false, `Private ${stored.private} is not equal to false`);
                     chai.assert(stored.size === 5120, `Size ${stored.size} is not equal to 5120`);
@@ -334,19 +334,19 @@ describe('FileBiz', () => {
             business.FileBiz.deleteFile(0, users[0])
                 .catch((reason: string) => {
                     chai.assert(reason === 'Invalid id: this request did not meet the expectations.', `Reason message didn't meet the expectations`);
-                    return business.FileBiz.deleteFile(undefined);
+                    return business.FileBiz.deleteFile(undefined, users[0]);
                 })
                 .catch((reason: string) => {
                     chai.assert(reason === 'Invalid id: this request did not meet the expectations.', `Reason message didn't meet the expectations`);
-                    return business.FileBiz.deleteFile(false);
+                    return business.FileBiz.deleteFile(false, users[0]);
                 })
                 .catch((reason: string) => {
                     chai.assert(reason === 'Invalid id: this request did not meet the expectations.', `Reason message didn't meet the expectations`);
-                    return business.FileBiz.deleteFile(NaN);
+                    return business.FileBiz.deleteFile(NaN, users[0]);
                 })
                 .catch((reason: string) => {
                     chai.assert(reason === 'Invalid id: this request did not meet the expectations.', `Reason message didn't meet the expectations`);
-                    return business.FileBiz.deleteFile(null);
+                    return business.FileBiz.deleteFile(null, users[0]);
                 })
                 .catch((reason: string) => {
                     chai.assert(reason === 'Invalid id: this request did not meet the expectations.', `Reason message didn't meet the expectations`);

@@ -34,6 +34,15 @@ export class DirectoryDAO {
             private: false,
             superdirectoryId: 1,
             ownerId: 2
+        },
+        {
+            _id: 4,
+            created: new Date(),
+            name: 'yetAnotherSubfolder',
+            path: '/home/user/Documents/root/yetAnotherSubfolder',
+            private: true,
+            superdirectoryId: 3,
+            ownerId: 4
         }
     ];
 

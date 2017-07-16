@@ -26,8 +26,8 @@ export namespace DirectoryBiz {
 
     export function getDirectoryAndFiles(directoryId: any, sessionUser: User): Promise<Directory> {
         return new Promise<Directory>((resolve: Function, reject: Function) => {
-            if (directoryId && !Utils.Validation.isInteger(directoryId)) {
-                return reject(`The value ${directoryId} is not valid as an id.`);
+            if (!directoryId || !Utils.Validation.isInteger(directoryId)) {
+                return reject(`Invalid id: this request did not meet the expectations.`);
             }
             let dataSource: Promise<Directory> = directoryId ?
                 DirectoryDAO.findById(directoryId) :
@@ -59,15 +59,14 @@ export namespace DirectoryBiz {
                         .map(DirectoryMapper.map);
                     resolve(directoryAndFiles);
                 })
-                .catch((reason: any) => {
-                    reject(reason);
-                });
+                .catch((reason: any) => reject(reason));
         });
     }
 
     export function createDirectory(directory: any, sessionUser: User): Promise<string | Directory> {
         return new Promise<string | Directory>((resolve: Function, reject: Function) => {
-            if (!DirectoryBusiness.typeCheck(directory) ||
+            if (!directory ||
+                !DirectoryBusiness.typeCheck(directory) ||
                 !Utils.Validation.isInteger(directory.superdirectoryId) ||
                 !Utils.Validation.isBoolean(directory.private)) {
                 return reject('Invalid Directory: the body of this request did not meet the expectations.');
@@ -94,9 +93,7 @@ export namespace DirectoryBiz {
                     return DirectoryDAO.create(directoryToCreate);
                 })
                 .then((created: Directory) => resolve(DirectoryMapper.map(created)))
-                .catch((reason: any) => {
-                    reject('It was not possible to create the Directory.');
-                });
+                .catch((reason: any) => reject('It was not possible to create the Directory.'));
         });
     }
 
@@ -111,7 +108,7 @@ export namespace DirectoryBiz {
             informationForDirectory(id)
                 .then((directory: Directory) => {
                     if (!directory) {
-                        return reject(`No Directory with id ${id} could be found.`);
+                        return reject(`No directory with id ${id} could be found.`);
                     }
                     if (directory.ownerId !== sessionUser.userId) {
                         return reject(`Forbidden action: directories can only be removed by their owners.`);
