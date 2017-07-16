@@ -26,4 +26,8 @@ export namespace FileSystem {
         return undefined;
     }
 
+    export function renameFile(path: string) {
+        return;
+    }
+
 }
