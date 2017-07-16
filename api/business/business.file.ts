@@ -108,6 +108,10 @@ export namespace FileBiz {
                     if (found.ownerId !== sessionUser.userId) {
                         return reject('Forbidden action: files can only be updated by their owners.');
                     }
+                    if (!!fileData.name) {
+                        let newPath: string = found.path.replace(found.name, fileData.name);
+                        Utils.FileSystem.renameFile(found.path, newPath);
+                    }
                     let toUpdate: File = new FileBuilder()
                         .withPreviousContent(found)
                         .withName(fileData.name ? fileData.name : found.name)
@@ -126,7 +130,6 @@ export namespace FileBiz {
         static typeCheck(object: any): boolean {
             return 'directoryId' in object;
         }
-
 
         static isAnInvalidName(name: string) {
             let isTooBig: boolean = name.length > 35;
